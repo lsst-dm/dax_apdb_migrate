@@ -1,0 +1,6 @@
+#!/usr/bin/env python
+
+from lsst.dax.apdb_migrate.sql.cli import cli
+
+if __name__ == "__main__":
+    cli.cli()
