@@ -19,11 +19,32 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from .migrate_add_tree import migrate_add_tree
-from .migrate_current import migrate_current
-from .migrate_downgrade import migrate_downgrade
-from .migrate_history import migrate_history
-from .migrate_revision import migrate_revision
-from .migrate_show_trees import migrate_show_trees
-from .migrate_stamp import migrate_stamp
-from .migrate_upgrade import migrate_upgrade
+"""Dump configuration.
+"""
+
+from __future__ import annotations
+
+from alembic import command
+
+from .. import config
+
+
+def migrate_history(tree_name: str, mig_path: str, verbose: bool) -> None:
+    """Print version history for a given tree.
+
+    Parameters
+    ----------
+    tree_name : `str`
+        Name of the revision tree.
+    mig_path : `str`
+        Filesystem path to location of revisions.
+    verbose : `bool`
+        Print verbose information if this flag is true.
+    """
+    # limit to a single location if tree name is given
+    if tree_name:
+        cfg = config.MigAlembicConfig.from_mig_path(mig_path, single_tree=tree_name)
+    else:
+        cfg = config.MigAlembicConfig.from_mig_path(mig_path)
+
+    command.history(cfg, verbose=verbose)

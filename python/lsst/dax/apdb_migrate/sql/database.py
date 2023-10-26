@@ -29,7 +29,7 @@ from typing import cast
 import sqlalchemy
 from alembic.runtime.migration import MigrationContext
 
-from . import revision
+from .. import revision
 
 _LOG = logging.getLogger(__name__)
 
@@ -51,8 +51,8 @@ class Database:
         Database schema/namespace.
     """
 
-    def __init__(self, db_url: sqlalchemy.engine.url.URL, schema: str | None = None):
-        self._db_url = db_url
+    def __init__(self, db_url: str, schema: str | None = None):
+        self._db_url = sqlalchemy.engine.make_url(db_url)
         self._schema = schema
 
     @property
