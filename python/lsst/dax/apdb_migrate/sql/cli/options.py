@@ -23,7 +23,7 @@ import click
 
 from .. import migrate
 
-mig_path_option = click.option(
+mig_path = click.option(
     "--mig-path",
     type=click.Path(exists=False, file_okay=False, writable=True),
     help="Top-level folder with migration scripts, default: " + migrate.MigrationTrees.migrations_folder(),
@@ -31,7 +31,7 @@ mig_path_option = click.option(
     default=migrate.MigrationTrees.migrations_folder(),
 )
 
-mig_path_exist_option = click.option(
+mig_path_exist = click.option(
     "--mig-path",
     type=click.Path(exists=True, file_okay=False, writable=True),
     help="Top-level folder with migration scripts, default: " + migrate.MigrationTrees.migrations_folder(),
@@ -39,4 +39,18 @@ mig_path_exist_option = click.option(
     default=migrate.MigrationTrees.migrations_folder(),
 )
 
-verbose_option = click.option("-v", "--verbose", help="Print detailed information.", is_flag=True)
+verbose = click.option("-v", "--verbose", help="Print detailed information.", is_flag=True)
+
+stamp_purge = click.option(
+    "--purge", help="Remove existing version table before saving new versions.", is_flag=True
+)
+
+dry_run = click.option("-n", "--dry-run", help="Do not execute actions, only report.", is_flag=True)
+
+schema = click.option("-s", "--schema", help="Database schema name.", default=None)
+
+branch = click.option("-b", "--branch", help="Branch name, default=main.", default="main")
+
+dump_sql = click.option(
+    "--sql", help="Offline mode, dump SQL instead of executing migration on a database.", is_flag=True
+)

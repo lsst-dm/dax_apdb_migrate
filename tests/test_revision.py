@@ -2,7 +2,7 @@
 #
 # Developed for the LSST Data Management System.
 # This product includes software developed by the LSST Project
-# (https://www.lsst.org).
+# (http://www.lsst.org).
 # See the COPYRIGHT file at the top-level directory of this distribution
 # for details of code ownership.
 #
@@ -17,8 +17,24 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import click
 
-tree_name_argument = click.argument("tree-name")
+import unittest
+
+from lsst.dax.apdb_migrate import revision
+
+
+class RevisionTestCase(unittest.TestCase):
+    """Tests for revision module"""
+
+    def test_rev_id(self) -> None:
+        """Test for rev_id method"""
+        rev_id = revision.rev_id("APDB-schema")
+        self.assertEqual(rev_id, "4aed1b1fceb9")
+        rev_id = revision.rev_id("APDB-code", "ApdbSql")
+        self.assertEqual(rev_id, "0c7d25a5c1fd")
+
+
+if __name__ == "__main__":
+    unittest.main()

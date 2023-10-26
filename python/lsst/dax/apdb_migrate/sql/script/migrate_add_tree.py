@@ -26,7 +26,8 @@ import os
 
 from alembic import command
 
-from .. import config, migrate, revision
+from ... import revision
+from .. import config, migrate
 
 _LOG = logging.getLogger(__name__)
 

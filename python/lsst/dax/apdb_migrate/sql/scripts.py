@@ -19,11 +19,32 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from .migrate_add_tree import migrate_add_tree
-from .migrate_current import migrate_current
-from .migrate_downgrade import migrate_downgrade
-from .migrate_history import migrate_history
-from .migrate_revision import migrate_revision
-from .migrate_show_trees import migrate_show_trees
-from .migrate_stamp import migrate_stamp
-from .migrate_upgrade import migrate_upgrade
+from __future__ import annotations
+
+from alembic.config import Config
+from alembic.script import ScriptDirectory
+
+
+class Scripts:
+    """Class that provides convenience methods for obtaining information about
+    migration scripts.
+
+    Parameters
+    ----------
+    config : `alembic.config.Config`
+        Alembic configuration.
+    """
+
+    def __init__(self, config: Config):
+        self.scripts = ScriptDirectory.from_config(config)
+
+    def base_revisions(self) -> list[str]:
+        """Return list of all base revisions, or roots of the migration trees.
+
+        Returns
+        -------
+        bases : `list` [`str`]
+            Base revisions, corresponding to the roots of the each manager
+            migration tree.
+        """
+        return list(self.scripts.get_bases())
