@@ -30,7 +30,7 @@ def run_migrations_offline() -> None:
 
     """
     url = config.get_main_option("sqlalchemy.url")
-    schema = config.get_section_option("daf_butler_migrate", "schema")
+    schema = config.get_section_option("dax_apdb_migrate", "schema")
     context.configure(
         url=url,
         target_metadata=target_metadata,
@@ -50,24 +50,12 @@ def run_migrations_online() -> None:
     and associate a connection with the context.
 
     """
-    # executemany_* arguments are postgres-specific, need to check dialect
-    url_str = config.get_main_option("sqlalchemy.url")
-    assert url_str is not None, "Expect URL connection defined."
-    url = engine.url.make_url(url_str)
-    if url.get_dialect().name == "postgresql":
-        kwargs = dict(
-            executemany_mode="values",
-            executemany_values_page_size=10000,
-            executemany_batch_page_size=500,
-        )
-    else:
-        kwargs = {}
-
+    kwargs = {}
     config_dict = config.get_section(config.config_ini_section)
     assert config_dict is not None, "Expect non-empty configuration"
     connectable = engine_from_config(config_dict, prefix="sqlalchemy.", poolclass=pool.NullPool, **kwargs)
 
-    schema = config.get_section_option("daf_butler_migrate", "schema")
+    schema = config.get_section_option("dax_apdb_migrate", "schema")
     with connectable.connect() as connection:
         context.configure(
             connection=connection,

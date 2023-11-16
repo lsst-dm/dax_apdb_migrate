@@ -34,6 +34,7 @@ CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
 def cli() -> None:
     """APDB schema migration tools for SQL backend."""
     logging.basicConfig(level=logging.INFO)
+    logging.getLogger("alembic").setLevel(logging.WARNING)
 
 
 @cli.command(short_help="Create new revision tree.")
