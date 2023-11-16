@@ -32,12 +32,23 @@ produced by `uuid.uuid5(uuid.NAMESPACE_DNS, "lsst.org")`.
 def rev_id(*args: str) -> str:
     """Generate revision ID from arguments.
 
-    Returned string is a deterministic hash of the arguments.
+    Parameters
+    ----------
+    *args : str
+        Set of arbitrary strings, at least one argument is required.
 
     Returns
     -------
     rev_id : `str`
-        Revision ID, 12-character string.
+        Revision ID, character string. It is either a concatenation of all
+        arguments separated by underscores, or, if the total length of
+        concatenated string is longer than 32 characters, first 12 characters
+        of the hash of that string.
     """
-    name = "-".join(args)
-    return uuid.uuid5(NS_UUID, name).hex[-12:]
+    if len(args) == 1:
+        result = args[0] + "_root"
+    else:
+        result = "_".join(args)
+    if len(result) > 32:
+        result = uuid.uuid5(NS_UUID, result).hex[-12:]
+    return result

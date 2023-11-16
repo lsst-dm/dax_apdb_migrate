@@ -31,9 +31,9 @@ class RevisionTestCase(unittest.TestCase):
     def test_rev_id(self) -> None:
         """Test for rev_id method"""
         rev_id = revision.rev_id("APDB-schema")
-        self.assertEqual(rev_id, "4aed1b1fceb9")
+        self.assertEqual(rev_id, "APDB-schema_root")
         rev_id = revision.rev_id("APDB-code", "ApdbSql")
-        self.assertEqual(rev_id, "0c7d25a5c1fd")
+        self.assertEqual(rev_id, "APDB-code_ApdbSql")
 
 
 if __name__ == "__main__":

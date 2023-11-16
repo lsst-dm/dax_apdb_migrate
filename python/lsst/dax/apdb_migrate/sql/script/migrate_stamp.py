@@ -56,10 +56,13 @@ def migrate_stamp(
     """
     db = database.Database(db_url, schema)
 
-    manager_versions = db.tree_versions()
+    tree_versions = db.tree_versions()
+    if not tree_versions:
+        # Means that metadata table exists but is empty?
+        raise ValueError("No versions defined in metadata table.")
 
     revisions: dict[str, str] = {}
-    for tree, (version, rev_id) in manager_versions.items():
+    for tree, (version, rev_id) in tree_versions.items():
         _LOG.debug("found revision (%s, %s) -> %s", tree, version, rev_id)
         revisions[tree] = rev_id
 
