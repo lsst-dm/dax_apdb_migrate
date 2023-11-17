@@ -127,6 +127,7 @@ def stamp(*args: Any, **kwargs: Any) -> None:
 @options.mig_path_exist
 @options.dump_sql
 @options.schema
+@options.options
 @click.argument("db-url")
 @click.argument("revision")
 def upgrade(*args: Any, **kwargs: Any) -> None:
@@ -136,6 +137,13 @@ def upgrade(*args: Any, **kwargs: Any) -> None:
     REVISION is a target alembic revision, in offline mode it can also specify
     the initial revision using INITIAL:TARGET format.
     """
+    # Convert list of key=value to dict
+    options = {}
+    for option in kwargs["options"]:
+        key, _, value = option.partition("=")
+        options[key] = value
+    kwargs["options"] = options
+
     script.migrate_upgrade(*args, **kwargs)
 
 
@@ -143,6 +151,7 @@ def upgrade(*args: Any, **kwargs: Any) -> None:
 @options.mig_path_exist
 @options.dump_sql
 @options.schema
+@options.options
 @click.argument("db-url")
 @click.argument("revision")
 def downgrade(*args: Any, **kwargs: Any) -> None:
@@ -152,4 +161,11 @@ def downgrade(*args: Any, **kwargs: Any) -> None:
     REVISION is a target alembic revision, in offline mode it can also specify
     the initial revision using INITIAL:TARGET format.
     """
+    # Convert list of key=value to dict
+    options = {}
+    for option in kwargs["options"]:
+        key, _, value = option.partition("=")
+        options[key] = value
+    kwargs["options"] = options
+
     script.migrate_downgrade(*args, **kwargs)
