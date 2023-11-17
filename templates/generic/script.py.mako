@@ -17,8 +17,10 @@ depends_on = ${repr(depends_on)}
 
 
 def upgrade():
+    """Upgrade database schema to a new version."""
     ${upgrades if upgrades else "raise NotImplementedError()"}
 
 
 def downgrade():
+    """Downgrade database schema to a previous version."""
     ${downgrades if downgrades else "raise NotImplementedError()"}

@@ -33,7 +33,9 @@ from .. import config, database, scripts
 _LOG = logging.getLogger(__name__)
 
 
-def migrate_downgrade(db_url: str, schema: str | None, revision: str, mig_path: str, sql: bool) -> None:
+def migrate_downgrade(
+    db_url: str, schema: str | None, revision: str, mig_path: str, sql: bool, options: dict[str, str] | None
+) -> None:
     """Downgrade schema to a specified revision.
 
     Parameters
@@ -48,6 +50,8 @@ def migrate_downgrade(db_url: str, schema: str | None, revision: str, mig_path: 
         Filesystem path to location of revisions.
     sql : `bool`
         If True dump SQL instead of executing migration on a database.
+    options : `dict` or `None`
+        Additional key:value options specified on command line
     """
     db = database.Database(db_url, schema)
 
@@ -58,7 +62,7 @@ def migrate_downgrade(db_url: str, schema: str | None, revision: str, mig_path: 
             "Alembic version table does not exist, you may need to run `apdb-migrate-sql stamp` first."
         )
 
-    cfg = config.MigAlembicConfig.from_mig_path(mig_path, db=db)
+    cfg = config.MigAlembicConfig.from_mig_path(mig_path, db=db, migration_options=options)
 
     # check that alembic versions are consistent with butler
     script_info = scripts.Scripts(cfg)

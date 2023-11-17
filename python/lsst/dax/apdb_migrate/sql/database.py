@@ -178,14 +178,14 @@ class Database:
         manager_only = manager_revs_set - alembic_revs
 
         if alembic_only or manager_only:
-            msg = "Butler and alembic revisions are inconsistent --"
+            msg = "Metadata and alembic revisions are inconsistent --"
             sep = ""
             if alembic_only:
                 alembic_only_str = ",".join(alembic_only)
                 msg += f" revisions in alembic only: {alembic_only_str}"
                 sep = ";"
             if manager_only:
-                msg += sep + " revisions in butler only:"
+                msg += sep + " revisions in metadata only:"
                 for rev in manager_only:
                     msg += f" {rev}={tree_revs[rev]}"
             raise RevisionConsistencyError(msg)

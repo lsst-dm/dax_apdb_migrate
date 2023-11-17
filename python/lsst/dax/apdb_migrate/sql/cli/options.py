@@ -54,3 +54,11 @@ branch = click.option("-b", "--branch", help="Branch name, default=main.", defau
 dump_sql = click.option(
     "--sql", help="Offline mode, dump SQL instead of executing migration on a database.", is_flag=True
 )
+
+options = click.option(
+    "-o",
+    "--options",
+    help="Options to pass to migration scripts, as a key-value pair, can be used more than once.",
+    metavar="KEY=VALUE",
+    multiple=True,
+)
