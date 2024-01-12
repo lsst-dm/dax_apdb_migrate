@@ -6,46 +6,49 @@
 lsst.dax.apdb_migrate
 #####################
 
-.. Paragraph that describes what this Python module does and links to related modules and frameworks.
+.. _lsst.dax.apdb_migrate-using:
 
-.. .. _lsst.dax.apdb_migrate-using:
+.. toctree::
+    :maxdepth: 1
 
-.. Using lsst.dax.apdb_migrate
-.. ===========================
+Using migration tools
+=====================
 
-.. toctree linking to topics related to using the module's APIs.
+This package provides tools for performing database schema migration on APDB instances, both relational and Cassandra.
+Database migrations are defined as scripts executed by these tools, this package also serves as a repository for migration scripts.
 
-.. .. toctree::
-..    :maxdepth: 1
+.. toctree::
+   :maxdepth: 1
 
-.. _lsst.dax.apdb_migrate-contributing:
+   concepts.rst
+   command-line.rst
+   migration-scripts.rst
+   typical-tasks.rst
+   common-migrations.rst
 
-Contributing
-============
+Migrations catalog
+==================
 
-``lsst.dax.apdb_migrate`` is developed at https://github.com/lsst-dm/dax_apdb_migrate.
-You can find Jira issues for this module under the `dax_apdb_migrate <https://jira.lsstcorp.org/issues/?jql=project%20%3D%20DM%20AND%20component%20%3D%20dax_apdb_migrate>`_ component.
+Links below lead to the description of existing migration scripts for each of the migration trees.
 
-.. If there are topics related to developing this module (rather than using it), link to this from a toctree placed here.
+Migrations that exist for SQL backend:
 
-.. .. toctree::
-..    :maxdepth: 1
+.. toctree::
+   :maxdepth: 1
 
-.. .. _lsst.dax.apdb_migrate-scripts:
+   migrations/sql/schema.rst
+   migrations/sql/ApdbSql.rst
 
-.. Script reference
-.. ================
+There are no migrations defined for Cassandra backend at this point.
 
-.. .. TODO: Add an item to this toctree for each script reference topic in the scripts subdirectory.
 
-.. .. toctree::
-..    :maxdepth: 1
+Implementation details
+======================
 
-.. .. _lsst.dax.apdb_migrate-pyapi:
+``dax_apdb_migrate`` does not provide public API.
+This package is also very special because it is supposed to work with database schemas created by different (even incompatible) releases.
+Due to that it cannot depend directly on many features of ``dax_apdb``, dependencies, if any, will be limited to the most stable parts of its API.
+A small subset of ``dax_apdb`` API was re-implemented in this package to avoid dependency issues.
 
-Python API reference
-====================
-
-.. automodapi:: lsst.dax.apdb_migrate
-   :no-main-docstr:
-   :no-inheritance-diagram:
+Even with the very limited dependencies it is not guaranteed that ``dax_apdb_migrate`` will be completely backward compatible.
+Migrating older registries may require use of older releases and older version of this package.
