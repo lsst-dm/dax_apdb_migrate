@@ -8,9 +8,31 @@ Upgrade from 0.1.0 to 0.1.1
 Migration script: `schema_0.1.1.py <https://github.com/lsst-dm/dax_apdb_migrate/blob/main/migrations/sql/schema/schema_0.1.1.py>`_
 
 This migration creates ``metadata`` table to the schema which was added in version ``0.1.1`` of ``apdb.yaml``.
-It also populates metadata with version numbers for both ``schema`` and ``ApdbSql`` trees (usually migreations only update their own tree version).
-The ``ApdbSql`` schema version store in ``metadata`` will be ``0.1.0`` by default, but it can be changed via the command line option.
+It also populates metadata with version numbers for both ``schema`` and ``ApdbSql`` trees (usually migrations only update their own tree version).
+The ``ApdbSql`` schema version stored in ``metadata`` will be ``0.1.0`` by default, but it can be changed via the command line option.
 
 An example of specifying different version number for ApdbSql::
 
     $ apdb-migrate-sql upgrade --options apdb_sql_version=0.2.0 $APDB_URL schema_0.1.1
+
+
+Upgrade from 0.1.1 to 1.0.0
+===========================
+
+Migration script: `schema_1.0.0.py <https://github.com/lsst-dm/dax_apdb_migrate/blob/main/migrations/sql/schema/schema_1.0.0.py>`_
+
+This migration implements two unrelated schema changes:
+
+  - replacing ``ccdVisitId`` column in source tables with ``visit`` and ``detector`` columns (`DM-42435 <https://rubinobs.atlassian.net/browse/DM-42435>`_)
+  - replacing ``DiaSource.flags`` bitmask column with individual boolean columns for each flag (`DM-41530 <https://rubinobs.atlassian.net/browse/DM-41530>`_)
+
+Unpacking ``ccdVisitId`` value into ``visit`` and ``detector`` is implemented by specific instrument code and uses Butler registry to locate packer parameters.
+This requires passing additional parameters to the migration script specifying Butler repository and instrument name.
+The same Butler repository that was used for processing of APDB data should be specified to avoid potential mismatch in configuration.
+Instrument code needs corresponding packages to be setup, e.g. LATISS needs ``obs_lsst`` package.
+If script cannot import corresponding instrument classes, it will raise an exception and migration will be aborted.
+
+An example of migrating APDB populated from LATISS data::
+
+    $ setup -k obs_lsst
+    $ apdb-migrate-sql upgrade -s SCHEMA_NAME --options butler-repo=/repo/main --options instrument=LATISS $APDB_URL schema_1.0.0
