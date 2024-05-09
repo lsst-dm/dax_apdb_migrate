@@ -36,3 +36,17 @@ An example of migrating APDB populated from LATISS data::
 
     $ setup -k obs_lsst
     $ apdb-migrate-sql upgrade -s SCHEMA_NAME --options butler-repo=/repo/main --options instrument=LATISS $APDB_URL schema_1.0.0
+
+
+Upgrade from 1.0.0 to 1.1.0
+===========================
+
+Migration script: `schema_1.1.0.py <https://github.com/lsst-dm/dax_apdb_migrate/blob/main/migrations/sql/schema/schema_1.1.0.py>`_
+
+This migration removes multiple BLOB columns from ``DiaObject`` table (and ``DiaObjectChunks`` if that is present).
+Column names are ``{b}_lcPeriodic`` and ``{b}_lcNonPeriodic`` where ``{b}`` is one of six band names (``ugrizy``).
+No additional parameters or packages are needed for this script.
+
+An example of migration::
+
+    $ apdb-migrate-sql upgrade -s SCHEMA_NAME $APDB_URL schema_1.1.0
