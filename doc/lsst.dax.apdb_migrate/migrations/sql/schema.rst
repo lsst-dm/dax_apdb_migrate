@@ -13,7 +13,7 @@ The ``ApdbSql`` schema version stored in ``metadata`` will be ``0.1.0`` by defau
 
 An example of specifying different version number for ApdbSql::
 
-    $ apdb-migrate-sql upgrade --options apdb_sql_version=0.2.0 $APDB_URL schema_0.1.1
+    $ apdb-migrate-sql upgrade --options apdb_sql_version=0.2.0 -s SCHEMA_NAME $APDB_URL schema_0.1.1
 
 
 Upgrade from 0.1.1 to 1.0.0
