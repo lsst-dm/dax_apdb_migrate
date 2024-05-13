@@ -23,6 +23,11 @@ SQL Backend
 
 Below a re examples of commands that are typically used with SQL backend.
 
+Note that our usual setup uses shared PostgreSQL database where each APDB instance is located in a separate schema.
+It is important to always use correct ``--schema/-s`` option providing correct schema name.
+SQLite databases do not use schemas and ``--schema/-s`` should not be given in that case.
+Examples below include ``-s SCHEMA_NAME`` for the commands that have that option.
+
 
 Revision stamping
 -----------------
@@ -33,15 +38,15 @@ Before executing any other migration commands the ``alembic_version`` table need
 
 To check the existence of the ``alembic_version`` table one can run the ``show-current`` command::
 
-    $ apdb-migrate-sql show-current $APDB_URL
+    $ apdb-migrate-sql show-current -s SCHEMA_NAME $APDB_URL
 
 If its output is empty then ``alembic_version`` does not exist and has to be created and current revisions stamped into it with this command::
 
-    $ apdb-migrate-sql stamp $APDB_URL
+    $ apdb-migrate-sql stamp -s SCHEMA_NAME $APDB_URL
 
 Once the revisions are stamped the ``show-current`` command should produce non-empty output::
 
-    $ apdb-migrate-sql show-current $APDB_URL
+    $ apdb-migrate-sql show-current -s SCHEMA_NAME $APDB_URL
     ApdbSql_0.1.0 (head)
     schema_0.1.0
 
@@ -58,7 +63,7 @@ The ``show-current`` command displays versions/revisions from both these tables.
 
 Without options it shows revisions from ``alembic_version`` table::
 
-    $ apdb-migrate-sql show-current $APDB_URL
+    $ apdb-migrate-sql show-current -s SCHEMA_NAME $APDB_URL
     ApdbSql_0.1.0 (head)
     schema_0.1.0
 
@@ -68,7 +73,7 @@ If ``(head)`` is missing then newer revisions exist in the revision history, and
 
 With the ``--metadata`` (or ``-m``) option this command displays information from the ``metadata`` table::
 
-    $ apdb-migrate-sql show-current --metadata $APDB_URL
+    $ apdb-migrate-sql show-current --metadata -s SCHEMA_NAME $APDB_URL
     ApdbSql: 0.1.0 -> ApdbSql_0.1.0 (head)
     schema: 0.1.0 -> schema_0.1.0
 
@@ -86,20 +91,20 @@ Suppose you look at the ``show-current`` output and noticed that it shows revisi
 To check which new revisions exist run the ``show-history`` command for that manager::
 
     $ apdb-migrate-sql show-history schema
-    schema_0.1.1 -> schema_0.2.0 (schema) (head), Migration script for schema 0.2.0.
+    schema_0.1.1 -> schema_1.0.0 (schema) (head), Migration script for schema 1.0.0.
     schema_0.1.0 -> schema_0.1.1 (schema), Migration script for schema 0.1.1.
     schema_root -> schema_0.1.0 (schema), Migration script for schema 0.1.0.
     <base> -> schema_root (schema), An initial pseudo-revision of the 'schema' tree.
 
-You can tell that revision ``schema_0.1.0`` can be upgraded to ``schema_0.1.1``, and the latter can be also upgraded to ``schema_0.2.0``.
+You can tell that revision ``schema_0.1.0`` can be upgraded to ``schema_0.1.1``, and the latter can be also upgraded to ``schema_1.0.0``.
 
-With Alembic each migration has to be performed as a separate step, providing an explicit revision number.
-The two commands that perform the upgrade to the latest version 6.0.2 are::
+Migration can be performed as separate steps, providing an explicit revision number for each step, or as one command specifying final revision.
+An example of migration with two separate steps that perform the upgrade to the latest version 1.0.0 are::
 
-    $ apdb-migrate-sql upgrade $APDB_URL schema_0.1.1
-    $ apdb-migrate-sql upgrade $APDB_URL schema_0.2.0
+    $ apdb-migrate-sql upgrade -s SCHEMA_NAME $APDB_URL schema_0.1.1
+    $ apdb-migrate-sql upgrade -s SCHEMA_NAME $APDB_URL schema_1.0.0
 
-After that ``show-current`` should show ``schema_0.2.0 (head)`` in its output.
+After that ``show-current`` should show ``schema_1.0.0 (head)`` in its output.
 
 Usually migration scripts are running in a single transaction, if migration fails for some reason, the state of the schema should remain unchanged.
 
@@ -112,8 +117,8 @@ Downgrading schema
 
 It is possible to also switch the schema to a previous revision via ``downgrade`` command.
 The command takes a revision number which should be a revision preceding the current one.
-For example, to downgrade ``schema`` tree from current ``schema_0.2.0`` to previous ``schema_0.1.1`` run this command::
+For example, to downgrade ``schema`` tree from current ``schema_1.0.0`` to previous ``schema_0.1.1`` run this command::
 
-    $ apdb-migrate-sql downgrade $APDB_URL schema_0.1.1
+    $ apdb-migrate-sql downgrade -s SCHEMA_NAME $APDB_URL schema_0.1.1
 
 Of course, the migration script has to implement the ``downgrade()`` method for this, which may not always be true.
