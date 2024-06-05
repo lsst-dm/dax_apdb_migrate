@@ -20,6 +20,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import logging
+from collections.abc import Iterable
 from typing import Any
 
 import click
@@ -29,12 +30,35 @@ from . import options
 
 CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
 
+_log_format = "%(asctime)s %(levelname)s %(name)s - %(message)s"
+
+
+def _init_logging(args: Iterable[str]) -> None:
+    """Configure Python logging based on command line options."""
+    global_level = logging.INFO
+    # Silence alembic by default
+    logger_levels: dict[str, int] = {"alembic": logging.WARNING}
+    for level_str in args:
+        for spec in level_str.split(","):
+            logger_name, sep, level_name = spec.rpartition("=")
+            level = logging.getLevelNamesMapping().get(level_name.upper())
+            if level is None:
+                raise ValueError(f"Unknown logging level {level_name!r} in {level_str!r}")
+            if logger_name:
+                logger_levels[logger_name] = level
+            else:
+                global_level = level
+
+    logging.basicConfig(level=global_level, format=_log_format)
+    for logger_name, level in logger_levels.items():
+        logging.getLogger(logger_name).setLevel(level)
+
 
 @click.group(context_settings=CONTEXT_SETTINGS)
-def cli() -> None:
+@options.log_level
+def cli(log_level: Iterable[str]) -> None:
     """APDB schema migration tools for SQL backend."""
-    logging.basicConfig(level=logging.INFO)
-    logging.getLogger("alembic").setLevel(logging.WARNING)
+    _init_logging(log_level)
 
 
 @cli.command(short_help="Create new revision tree.")
