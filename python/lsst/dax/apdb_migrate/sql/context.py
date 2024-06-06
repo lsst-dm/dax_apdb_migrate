@@ -24,6 +24,8 @@ from __future__ import annotations
 __all__ = ("Context",)
 
 import contextlib
+from collections.abc import Iterator
+from typing import Any
 
 import alembic
 import alembic.operations
@@ -59,7 +61,7 @@ class Context:
         # APDB metadata interface.
         self.apdb_meta = ApdbMetadata(self.bind, self.schema)
 
-    def get_table(self, table_name: str) -> sqlalchemy.Table:
+    def get_table(self, table_name: str, reload: bool = False) -> sqlalchemy.Table:
         """Return SQLAlchemy table object for the current database.
 
         Parameters
@@ -72,7 +74,13 @@ class Context:
         table : `sqlalchemy.Table`
             Table object.
         """
-        return sqlalchemy.schema.Table(table_name, self.metadata, autoload_with=self.bind, schema=self.schema)
+        if reload:
+            for table in self.metadata.tables.values():
+                if table.name == table_name:
+                    self.metadata.remove(table)
+                    break
+        with self._reflection_bind() as bind:
+            return sqlalchemy.schema.Table(table_name, self.metadata, autoload_with=bind, schema=self.schema)
 
     def get_mig_option(self, option: str) -> str | None:
         """Retrieve option that was passed on the command line.
@@ -95,11 +103,33 @@ class Context:
         return self.mig_context.config.get_section_option("dax_apdb_migrate_options", option)
 
     def batch_alter_table(
-        self, table: str
+        self, table: str, **kwargs: Any
     ) -> contextlib.AbstractContextManager[alembic.operations.BatchOperations]:
         """Context manager for batch operations.
 
         This is a shortcut for alembic method, is main purpose is not to forget
         to pass schema name.
         """
-        return alembic.op.batch_alter_table(table, schema=self.schema)
+        return alembic.op.batch_alter_table(table, schema=self.schema, **kwargs)
+
+    @contextlib.contextmanager
+    def _reflection_bind(self) -> Iterator[sqlalchemy.engine.Connection]:
+        """Return database connection to be used for reflection. In online mode
+        this returns connection instantiated by Alembic, in offline mode it
+        creates new engine using configured URL.
+
+        Yields
+        ------
+        connection : `sqlalchemy.engine.Connection`
+            Actual connection to database to use for reflection.
+        """
+        if alembic.context.is_offline_mode():
+            assert self.mig_context.config is not None
+            url = self.mig_context.config.get_main_option("sqlalchemy.url")
+            if url is None:
+                raise ValueError("sqlalchemy.url is missing from config")
+            engine = sqlalchemy.create_engine(url)
+            with engine.connect() as connection:
+                yield connection
+        else:
+            yield self.bind

@@ -62,3 +62,10 @@ options = click.option(
     metavar="KEY=VALUE",
     multiple=True,
 )
+
+log_level = click.option(
+    "--log-level",
+    help="Global or per-logger logging level, comma-separated and can be specified multiple times.",
+    metavar="LEVEL|LOGGER=LEVEL[,...]",
+    multiple=True,
+)

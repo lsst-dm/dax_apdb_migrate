@@ -40,7 +40,13 @@ class ApdbMetadata:
     def __init__(self, connection: sqlalchemy.engine.Connection, schema: str | None = None):
         self._connection = connection
         metadata = sqlalchemy.schema.MetaData(schema=schema)
-        self._table = sqlalchemy.schema.Table("metadata", metadata, autoload_with=connection, schema=schema)
+        self._table = sqlalchemy.schema.Table(
+            "metadata",
+            metadata,
+            sqlalchemy.schema.Column("name", sqlalchemy.Text, primary_key=True),
+            sqlalchemy.schema.Column("value", sqlalchemy.Text, nullable=False),
+            schema=schema,
+        )
 
     def get(self, key: str) -> str | None:
         """Retrieve values of the specified key.
@@ -91,7 +97,9 @@ class ApdbMetadata:
         """
         # update version
         sql = self._table.update().where(self._table.columns.name == key).values(value=value)
-        return self._connection.execute(sql).rowcount
+        result = self._connection.execute(sql)
+        # result may be None in offline mode, assume that we updated something
+        return 1 if result is None else result.rowcount
 
     def update_tree_version(self, tree: str, version: str, *, insert: bool = False) -> None:
         """Update version for the specified tree.

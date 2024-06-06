@@ -50,3 +50,17 @@ No additional parameters or packages are needed for this script.
 An example of migration::
 
     $ apdb-migrate-sql upgrade -s SCHEMA_NAME $APDB_URL schema_1.1.0
+
+
+Upgrade from 1.1.0 to 2.0.0
+===========================
+
+Migration script: `schema_2.0.0.py <https://github.com/lsst-dm/dax_apdb_migrate/blob/main/migrations/sql/schema/schema_2.0.0.py>`_
+
+This migration drops ``x`` and ``y`` columns from ``DiaForcedSource`` table and adds ``ra`` and ``dec`` columns.
+New columns are populated from the same columns of the matching ``DiaObject`` records.
+No additional parameters or packages are needed for this script.
+
+An example of migration::
+
+    $ apdb-migrate-sql upgrade -s SCHEMA_NAME $APDB_URL schema_2.0.0
