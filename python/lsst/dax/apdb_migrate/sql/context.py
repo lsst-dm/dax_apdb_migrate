@@ -79,7 +79,7 @@ class Context:
                 if table.name == table_name:
                     self.metadata.remove(table)
                     break
-        with self._reflection_bind() as bind:
+        with self.reflection_bind() as bind:
             return sqlalchemy.schema.Table(table_name, self.metadata, autoload_with=bind, schema=self.schema)
 
     def get_mig_option(self, option: str) -> str | None:
@@ -113,7 +113,7 @@ class Context:
         return alembic.op.batch_alter_table(table, schema=self.schema, **kwargs)
 
     @contextlib.contextmanager
-    def _reflection_bind(self) -> Iterator[sqlalchemy.engine.Connection]:
+    def reflection_bind(self) -> Iterator[sqlalchemy.engine.Connection]:
         """Return database connection to be used for reflection. In online mode
         this returns connection instantiated by Alembic, in offline mode it
         creates new engine using configured URL.
