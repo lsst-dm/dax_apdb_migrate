@@ -23,7 +23,7 @@ jobs:
           cache-dependency-path: "setup.cfg"
 
       - name: Install sqlite
-        run: sudo apt-get install sqlite libyaml-dev
+        run: sudo apt-get install sqlite3 libyaml-dev
 
       - name: Update pip/wheel infrastructure
         run: |
