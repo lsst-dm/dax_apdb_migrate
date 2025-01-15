@@ -64,3 +64,41 @@ No additional parameters or packages are needed for this script.
 An example of migration::
 
     $ apdb-migrate-sql upgrade -s SCHEMA_NAME $APDB_URL schema_2.0.0
+
+Upgrade from 2.0.0 to 2.0.1
+===========================
+
+Migration script: `schema_2.0.1.py <https://github.com/lsst-dm/dax_apdb_migrate/blob/main/migrations/sql/schema/schema_2.0.1.py>`_
+
+This migration adds ``pixelScale`` column to ``DetectorVisitProcessingSummary`` table.
+At this point the table is not supported by ``dax_apdb``, so this change is a patch-level change.
+No additional parameters or packages are needed for this script.
+
+An example of migration::
+
+    $ apdb-migrate-sql upgrade -s SCHEMA_NAME $APDB_URL schema_2.0.1
+
+Upgrade from 2.0.1 to 3.0.0
+===========================
+
+Migration script: `schema_3.0.0.py <https://github.com/lsst-dm/dax_apdb_migrate/blob/main/migrations/sql/schema/schema_3.0.0.py>`_
+
+This migration adds ``dipoleFitAttempted`` column to ``DiaSource`` table, initially set to ``NULL``.
+No additional parameters or packages are needed for this script.
+
+An example of migration::
+
+    $ apdb-migrate-sql upgrade -s SCHEMA_NAME $APDB_URL schema_3.0.0
+
+Upgrade from 3.0.0 to 4.0.0
+===========================
+
+Migration script: `schema_4.0.0.py <https://github.com/lsst-dm/dax_apdb_migrate/blob/main/migrations/sql/schema/schema_4.0.0.py>`_
+
+This migration adds ``nDiaSources`` column to ``DiaObjectLast`` table.
+The column is filled with the actual count of matching sources in ``DiaSource`` table.
+No additional parameters or packages are needed for this script.
+
+An example of migration::
+
+    $ apdb-migrate-sql upgrade -s SCHEMA_NAME $APDB_URL schema_4.0.0
