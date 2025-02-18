@@ -114,3 +114,15 @@ No additional parameters or packages are needed for this script.
 An example of migration::
 
     $ apdb-migrate-sql upgrade -s SCHEMA_NAME $APDB_URL schema_5.0.0
+
+Upgrade from 5.0.0 to 6.0.0
+===========================
+
+Migration script: `schema_6.0.0.py <https://github.com/lsst-dm/dax_apdb_migrate/blob/main/migrations/sql/schema/schema_6.0.0.py>`_
+
+This migration adds ``pixelFlags_nodata`` and ``pixelFlags_nodataCenter`` columns to ``DiaSource`` table, initially set to ``NULL``.
+No additional parameters or packages are needed for this script.
+
+An example of migration::
+
+    $ apdb-migrate-sql upgrade -s SCHEMA_NAME $APDB_URL schema_6.0.0
