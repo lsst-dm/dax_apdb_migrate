@@ -31,13 +31,9 @@ def upgrade() -> None:
     _LOG.info("Adding column to DetectorVisitProcessingSummary table.")
     try:
         summary = ctx.get_table("DetectorVisitProcessingSummary")
-        with ctx.batch_alter_table(
-            "DetectorVisitProcessingSummary", copy_from=summary
-        ) as batch_op:
+        with ctx.batch_alter_table("DetectorVisitProcessingSummary", copy_from=summary) as batch_op:
             # add empty column.
-            batch_op.add_column(
-                sqlalchemy.Column("pixelScale", sqlalchemy.types.Float, nullable=True)
-            )
+            batch_op.add_column(sqlalchemy.Column("pixelScale", sqlalchemy.types.Float, nullable=True))
     # the table is not instantiated at this time, so the exception is expected
     except sqlalchemy.exc.NoSuchTableError:
         pass
@@ -57,9 +53,7 @@ def downgrade() -> None:
     _LOG.info("Dropping column to DetectorVisitProcessingSummary table.")
     try:
         summary = ctx.get_table("DetectorVisitProcessingSummary")
-        with ctx.batch_alter_table(
-            "DetectorVisitProcessingSummary", copy_from=summary
-        ) as batch_op:
+        with ctx.batch_alter_table("DetectorVisitProcessingSummary", copy_from=summary) as batch_op:
             # drop pixelScale column.
             batch_op.drop_column("pixelScale")
     except sqlalchemy.exc.NoSuchTableError:

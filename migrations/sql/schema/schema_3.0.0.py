@@ -34,9 +34,7 @@ def upgrade() -> None:
         with ctx.batch_alter_table("DiaSource", copy_from=summary) as batch_op:
             # add empty column.
             batch_op.add_column(
-                sqlalchemy.Column(
-                    "dipoleFitAttempted", sqlalchemy.types.Boolean, nullable=True
-                )
+                sqlalchemy.Column("dipoleFitAttempted", sqlalchemy.types.Boolean, nullable=True)
             )
     except sqlalchemy.exc.NoSuchTableError:
         pass
