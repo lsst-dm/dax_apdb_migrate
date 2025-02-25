@@ -33,9 +33,11 @@ def upgrade() -> None:
         summary = ctx.get_table("DiaSource")
         with ctx.batch_alter_table("DiaSource", copy_from=summary) as batch_op:
             # add empty column.
-            batch_op.add_column(sqlalchemy.Column("is_negative", sqlalchemy.types.Boolean, nullable=True))
             batch_op.add_column(
                 sqlalchemy.Column("pixelFlags_nodata", sqlalchemy.types.Boolean, nullable=True)
+            )
+            batch_op.add_column(
+                sqlalchemy.Column("pixelFlags_nodataCenter", sqlalchemy.types.Boolean, nullable=True)
             )
     except sqlalchemy.exc.NoSuchTableError:
         pass
