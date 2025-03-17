@@ -88,29 +88,25 @@ class Database:
 
         versions: dict[str, str] = {}
 
-        # metadata table may be missing in the old schema.
-        inspector = sqlalchemy.inspect(engine)
-        has_metadata = inspector.has_table(self.metadata_table_name, schema=self._schema)
-        if not has_metadata:
-            # Missing metadata is equivalent to initial version numbers.
-            versions = {"schema": "0.1.0", "ApdbSql": "0.1.0"}
-        else:
-            # Read versions from metadata table.
-            meta = sqlalchemy.schema.MetaData(schema=self._schema)
-            table = sqlalchemy.schema.Table(
-                "metadata",
-                meta,
-                sqlalchemy.schema.Column("name", sqlalchemy.Text),
-                sqlalchemy.schema.Column("value", sqlalchemy.Text),
-            )
+        # Read versions from metadata table.
+        meta = sqlalchemy.schema.MetaData(schema=self._schema)
+        table = sqlalchemy.schema.Table(
+            self.metadata_table_name,
+            meta,
+            sqlalchemy.schema.Column("name", sqlalchemy.Text),
+            sqlalchemy.schema.Column("value", sqlalchemy.Text),
+        )
 
-            # Parse table contents.
-            sql = sqlalchemy.sql.select(table.columns.name, table.columns.value)
-            with engine.connect() as connection:
+        # Parse table contents.
+        sql = sqlalchemy.sql.select(table.columns.name, table.columns.value)
+        with engine.connect() as connection:
+            try:
                 result = connection.execute(sql)
-                for name, value in result:
-                    if name.startswith("version:"):
-                        versions[name.partition(":")[-1]] = value
+            except sqlalchemy.exc.ProgrammingError as exc:
+                raise RuntimeError("metadata table may be missing, please check schema name") from exc
+            for name, value in result:
+                if name.startswith("version:"):
+                    versions[name.partition(":")[-1]] = value
 
         revisions: dict[str, tuple[str, str]] = {}
         for tree, version in versions.items():
