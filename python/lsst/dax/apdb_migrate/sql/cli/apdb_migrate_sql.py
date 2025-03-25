@@ -27,6 +27,7 @@ from typing import Any
 import click
 
 from ... import init_logging
+from ...cli import common_options
 from .. import script
 from . import options
 
@@ -34,7 +35,7 @@ CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
 
 
 @click.group(context_settings=CONTEXT_SETTINGS)
-@options.log_level
+@common_options.log_level
 def main(log_level: Iterable[str]) -> None:
     """APDB schema migration tools for SQL backend."""
     init_logging(log_level)
@@ -66,7 +67,7 @@ def add_revision(*args: Any, **kwargs: Any) -> None:
 
 
 @main.command(short_help="Display current revisions for a database.")
-@options.verbose
+@common_options.verbose
 @click.option(
     "-m",
     "--metadata",
@@ -89,7 +90,7 @@ def show_current(*args: Any, **kwargs: Any) -> None:
 
 
 @main.command(short_help="Show revision history.")
-@options.verbose
+@common_options.verbose
 @options.mig_path_exist
 @click.argument("tree-name", required=False)
 def show_history(*args: Any, **kwargs: Any) -> None:
@@ -101,7 +102,7 @@ def show_history(*args: Any, **kwargs: Any) -> None:
 
 
 @main.command(short_help="Print a list of known revision trees.")
-@options.verbose
+@common_options.verbose
 @options.mig_path_exist
 def show_trees(*args: Any, **kwargs: Any) -> None:
     """Print a list of known revision trees (manager types)."""
@@ -111,7 +112,7 @@ def show_trees(*args: Any, **kwargs: Any) -> None:
 @main.command(short_help="Stamp alembic revision table with current metadata versions.")
 @options.mig_path_exist
 @options.stamp_purge
-@options.dry_run
+@common_options.dry_run
 @options.schema
 @click.argument("db-url")
 @click.argument("tree-name", required=False)
@@ -130,7 +131,7 @@ def stamp(*args: Any, **kwargs: Any) -> None:
 @options.mig_path_exist
 @options.dump_sql
 @options.schema
-@options.options
+@common_options.options
 @click.argument("db-url")
 @click.argument("revision")
 def upgrade(*args: Any, **kwargs: Any) -> None:
@@ -154,7 +155,7 @@ def upgrade(*args: Any, **kwargs: Any) -> None:
 @options.mig_path_exist
 @options.dump_sql
 @options.schema
-@options.options
+@common_options.options
 @click.argument("db-url")
 @click.argument("revision")
 def downgrade(*args: Any, **kwargs: Any) -> None:
