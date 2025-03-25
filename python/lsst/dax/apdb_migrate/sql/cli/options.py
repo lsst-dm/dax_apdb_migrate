@@ -23,49 +23,31 @@ import click
 
 from ... import trees
 
+_DEFAULT_MIGRATIONS = trees.MigrationTrees.migrations_folder("sql")
+
+
 mig_path = click.option(
     "--mig-path",
     type=click.Path(exists=False, file_okay=False, writable=True),
-    help="Top-level folder with migration scripts, default: " + trees.MigrationTrees.migrations_folder("sql"),
+    help=f"Top-level folder with migration scripts, default: {_DEFAULT_MIGRATIONS}",
     metavar="PATH",
-    default=trees.MigrationTrees.migrations_folder("sql"),
+    default=_DEFAULT_MIGRATIONS,
 )
 
 mig_path_exist = click.option(
     "--mig-path",
     type=click.Path(exists=True, file_okay=False, writable=True),
-    help="Top-level folder with migration scripts, default: " + trees.MigrationTrees.migrations_folder("sql"),
+    help=f"Top-level folder with migration scripts, default: {_DEFAULT_MIGRATIONS}",
     metavar="PATH",
-    default=trees.MigrationTrees.migrations_folder("sql"),
+    default=_DEFAULT_MIGRATIONS,
 )
-
-verbose = click.option("-v", "--verbose", help="Print detailed information.", is_flag=True)
 
 stamp_purge = click.option(
     "--purge", help="Remove existing version table before saving new versions.", is_flag=True
 )
 
-dry_run = click.option("-n", "--dry-run", help="Do not execute actions, only report.", is_flag=True)
-
 schema = click.option("-s", "--schema", help="Database schema name.", default=None)
-
-branch = click.option("-b", "--branch", help="Branch name, default=main.", default="main")
 
 dump_sql = click.option(
     "--sql", help="Offline mode, dump SQL instead of executing migration on a database.", is_flag=True
-)
-
-options = click.option(
-    "-o",
-    "--options",
-    help="Options to pass to migration scripts, as a key-value pair, can be used more than once.",
-    metavar="KEY=VALUE",
-    multiple=True,
-)
-
-log_level = click.option(
-    "--log-level",
-    help="Global or per-logger logging level, comma-separated and can be specified multiple times.",
-    metavar="LEVEL|LOGGER=LEVEL[,...]",
-    multiple=True,
 )
