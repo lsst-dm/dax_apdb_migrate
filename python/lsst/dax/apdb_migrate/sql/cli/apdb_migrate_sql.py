@@ -35,12 +35,12 @@ CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
 
 @click.group(context_settings=CONTEXT_SETTINGS)
 @options.log_level
-def cli(log_level: Iterable[str]) -> None:
+def main(log_level: Iterable[str]) -> None:
     """APDB schema migration tools for SQL backend."""
     init_logging(log_level)
 
 
-@cli.command(short_help="Create new revision tree.")
+@main.command(short_help="Create new revision tree.")
 @options.mig_path
 @click.argument("tree-name")
 def add_tree(*args: Any, **kwargs: Any) -> None:
@@ -52,7 +52,7 @@ def add_tree(*args: Any, **kwargs: Any) -> None:
     script.migrate_add_tree(*args, **kwargs)
 
 
-@cli.command(short_help="Create migration script for a new revision.")
+@main.command(short_help="Create migration script for a new revision.")
 @options.mig_path_exist
 @click.argument("tree-name")
 @click.argument("version")
@@ -65,7 +65,7 @@ def add_revision(*args: Any, **kwargs: Any) -> None:
     script.migrate_revision(*args, **kwargs)
 
 
-@cli.command(short_help="Display current revisions for a database.")
+@main.command(short_help="Display current revisions for a database.")
 @options.verbose
 @click.option(
     "-m",
@@ -88,7 +88,7 @@ def show_current(*args: Any, **kwargs: Any) -> None:
     script.migrate_current(*args, **kwargs)
 
 
-@cli.command(short_help="Show revision history.")
+@main.command(short_help="Show revision history.")
 @options.verbose
 @options.mig_path_exist
 @click.argument("tree-name", required=False)
@@ -100,7 +100,7 @@ def show_history(*args: Any, **kwargs: Any) -> None:
     script.migrate_history(*args, **kwargs)
 
 
-@cli.command(short_help="Print a list of known revision trees.")
+@main.command(short_help="Print a list of known revision trees.")
 @options.verbose
 @options.mig_path_exist
 def show_trees(*args: Any, **kwargs: Any) -> None:
@@ -108,7 +108,7 @@ def show_trees(*args: Any, **kwargs: Any) -> None:
     script.migrate_show_trees(*args, **kwargs)
 
 
-@cli.command(short_help="Stamp alembic revision table with current metadata versions.")
+@main.command(short_help="Stamp alembic revision table with current metadata versions.")
 @options.mig_path_exist
 @options.stamp_purge
 @options.dry_run
@@ -126,7 +126,7 @@ def stamp(*args: Any, **kwargs: Any) -> None:
     script.migrate_stamp(*args, **kwargs)
 
 
-@cli.command(short_help="Upgrade schema to a specified revision.")
+@main.command(short_help="Upgrade schema to a specified revision.")
 @options.mig_path_exist
 @options.dump_sql
 @options.schema
@@ -150,7 +150,7 @@ def upgrade(*args: Any, **kwargs: Any) -> None:
     script.migrate_upgrade(*args, **kwargs)
 
 
-@cli.command(short_help="Downgrade schema to a specified revision.")
+@main.command(short_help="Downgrade schema to a specified revision.")
 @options.mig_path_exist
 @options.dump_sql
 @options.schema
