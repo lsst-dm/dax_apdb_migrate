@@ -26,7 +26,8 @@ import os
 
 from alembic.config import Config
 
-from . import database, migrate
+from .. import trees
+from . import database
 
 _LOG = logging.getLogger(__name__)
 
@@ -67,7 +68,7 @@ class MigAlembicConfig(Config):
         cfg.set_section_option("alembic", "prepend_sys_path", ".")
         _LOG.debug("alembic_folder: %r, single_tree: %r", alembic_folder, single_tree)
 
-        migrate_trees = migrate.MigrationTrees(mig_path)
+        migrate_trees = trees.MigrationTrees("sql", mig_path)
         if single_tree:
             version_locations = [migrate_trees.version_location(single_tree, relative=False)]
         else:
