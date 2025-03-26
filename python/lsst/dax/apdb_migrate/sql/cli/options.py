@@ -21,22 +21,22 @@
 
 import click
 
-from .. import migrate
+from ... import trees
 
 mig_path = click.option(
     "--mig-path",
     type=click.Path(exists=False, file_okay=False, writable=True),
-    help="Top-level folder with migration scripts, default: " + migrate.MigrationTrees.migrations_folder(),
+    help="Top-level folder with migration scripts, default: " + trees.MigrationTrees.migrations_folder("sql"),
     metavar="PATH",
-    default=migrate.MigrationTrees.migrations_folder(),
+    default=trees.MigrationTrees.migrations_folder("sql"),
 )
 
 mig_path_exist = click.option(
     "--mig-path",
     type=click.Path(exists=True, file_okay=False, writable=True),
-    help="Top-level folder with migration scripts, default: " + migrate.MigrationTrees.migrations_folder(),
+    help="Top-level folder with migration scripts, default: " + trees.MigrationTrees.migrations_folder("sql"),
     metavar="PATH",
-    default=migrate.MigrationTrees.migrations_folder(),
+    default=trees.MigrationTrees.migrations_folder("sql"),
 )
 
 verbose = click.option("-v", "--verbose", help="Print detailed information.", is_flag=True)

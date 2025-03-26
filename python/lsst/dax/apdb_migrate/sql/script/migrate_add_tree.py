@@ -27,7 +27,8 @@ import os
 from alembic import command
 
 from ... import revision
-from .. import config, migrate
+from ...trees import MigrationTrees
+from .. import config
 
 _LOG = logging.getLogger(__name__)
 
@@ -59,7 +60,7 @@ def migrate_add_tree(tree_name: str, mig_path: str) -> None:
     if "/" in tree_name:
         raise ValueError("Regular tree name cannot have slash character: f{tree_name}.")
 
-    trees = migrate.MigrationTrees(mig_path)
+    trees = MigrationTrees("sql", mig_path)
 
     # check that its folder does not exist yet
     tree_folder = trees.version_location(tree_name, relative=False)
