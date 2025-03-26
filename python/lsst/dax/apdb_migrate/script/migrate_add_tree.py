@@ -73,9 +73,19 @@ def migrate_add_tree(tree_name: str, mig_path: str) -> None:
     if not os.access(alembic_folder, os.F_OK):
         _LOG.debug("Creating new alembic folder %r", alembic_folder)
 
+        # `init` comand requires cfg.config_file_name.
+        cfg.config_file_name = os.path.join(alembic_folder, "alembic.ini")
+
         # initialize tree folder
         template = "generic"
         command.init(cfg, directory=alembic_folder, template=template)
+
+        # As we don't use config file, just drop it to avoid confusion.
+        os.unlink(cfg.config_file_name)
+        cfg.config_file_name = None
+
+        # It also creates `versions` folder that we do not use, drop it too.
+        os.rmdir(os.path.join(alembic_folder, "versions"))
 
     # create initial branch revision in a separate folder
     message = f"This is an initial pseudo-revision of the {tree_name!r} tree."
