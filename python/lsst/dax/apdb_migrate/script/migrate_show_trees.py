@@ -25,7 +25,7 @@ from __future__ import annotations
 
 from alembic.script import Script, ScriptDirectory
 
-from ... import config
+from .. import config
 
 
 def migrate_show_trees(mig_path: str, verbose: bool) -> None:

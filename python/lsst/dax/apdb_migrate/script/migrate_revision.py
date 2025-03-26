@@ -28,7 +28,7 @@ import logging
 from alembic import command, util
 from alembic.script import ScriptDirectory
 
-from ... import config, revision, trees
+from .. import config, revision, trees
 
 _LOG = logging.getLogger(__name__)
 

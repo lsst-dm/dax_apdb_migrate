@@ -27,6 +27,7 @@ from typing import Any
 import click
 
 from ... import init_logging
+from ... import script as common_script
 from ...cli import common_options
 from .. import script
 from . import options
@@ -50,7 +51,7 @@ def add_tree(*args: Any, **kwargs: Any) -> None:
     TREE_NAME argument provides the name of the new revision tree, it cannot
     include slash or special characters.
     """
-    script.migrate_add_tree(*args, **kwargs)
+    common_script.migrate_add_tree(*args, **kwargs)
 
 
 @main.command(short_help="Create migration script for a new revision.")
@@ -63,7 +64,7 @@ def add_revision(*args: Any, **kwargs: Any) -> None:
     TREE_NAME argument provides the name of the revision tree.
     VERSION specifies new version string in MAJOR.MINOR.PATCH format.
     """
-    script.migrate_revision(*args, **kwargs)
+    common_script.migrate_revision(*args, **kwargs)
 
 
 @main.command(short_help="Display current revisions for a database.")
@@ -98,7 +99,7 @@ def show_history(*args: Any, **kwargs: Any) -> None:
 
     Optional TREE_NAME arguments specifies tree for which to display history.
     """
-    script.migrate_history(*args, **kwargs)
+    common_script.migrate_history(*args, **kwargs)
 
 
 @main.command(short_help="Print a list of known revision trees.")
@@ -106,7 +107,7 @@ def show_history(*args: Any, **kwargs: Any) -> None:
 @options.mig_path_exist
 def show_trees(*args: Any, **kwargs: Any) -> None:
     """Print a list of known revision trees (manager types)."""
-    script.migrate_show_trees(*args, **kwargs)
+    common_script.migrate_show_trees(*args, **kwargs)
 
 
 @main.command(short_help="Stamp alembic revision table with current metadata versions.")
