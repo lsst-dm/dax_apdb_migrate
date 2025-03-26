@@ -51,7 +51,7 @@ def migrate_current(db_url: str, schema: str | None, mig_path: str, verbose: boo
     """
     db = database.Database(db_url, schema)
 
-    cfg = config.MigAlembicConfig.from_mig_path(mig_path, db=db)
+    cfg = config.ApdbMigConfigSql.from_mig_path(mig_path, db=db)
     if metadata:
         # Print current versions defined in butler.
         script_info = scripts.Scripts(cfg)
