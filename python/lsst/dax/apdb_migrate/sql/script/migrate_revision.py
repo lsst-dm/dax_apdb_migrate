@@ -28,8 +28,7 @@ import logging
 from alembic import command, util
 from alembic.script import ScriptDirectory
 
-from ... import revision, trees
-from .. import config
+from ... import config, revision, trees
 
 _LOG = logging.getLogger(__name__)
 
@@ -64,7 +63,7 @@ def migrate_revision(mig_path: str, tree_name: str, version: str) -> None:
     migrate_trees = trees.MigrationTrees("sql", mig_path)
     tree_folder = migrate_trees.version_location(tree_name, relative=False)
 
-    cfg = config.MigAlembicConfig.from_mig_path(mig_path)
+    cfg = config.ApdbMigConfig(mig_path, "sql")
     scripts = ScriptDirectory.from_config(cfg)
 
     # make sure that tree root is defined

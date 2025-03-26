@@ -21,21 +21,16 @@
 
 from __future__ import annotations
 
-import logging
-import os
+__all__ = ["ApdbMigConfigSql"]
 
-from alembic.config import Config
-
-from .. import trees
+from .. import config
 from . import database
 
-_LOG = logging.getLogger(__name__)
 
-_MIGRATE_PACKAGE_ENV = "DAX_APDB_MIGRATE_DIR"
-
-
-class MigAlembicConfig(Config):
-    """Implementation of alembic config class which overrides few methods."""
+class ApdbMigConfigSql(config.ApdbMigConfig):
+    """Implementation of alembic config class which adds options specific to
+    SQL backend.
+    """
 
     @classmethod
     def from_mig_path(
@@ -45,7 +40,7 @@ class MigAlembicConfig(Config):
         db: database.Database | None = None,
         single_tree: str | None = None,
         migration_options: dict[str, str] | None = None,
-    ) -> MigAlembicConfig:
+    ) -> ApdbMigConfigSql:
         """Create new configuration object.
 
         Parameters
@@ -61,28 +56,7 @@ class MigAlembicConfig(Config):
             Additional options that can be passed to migration script via the
             configuration object, in a section "dax_apdb_migrate_options".
         """
-        alembic_folder = os.path.join(mig_path, "_alembic")
-        cfg = cls()
-        cfg.set_main_option("script_location", alembic_folder)
-        cfg.set_section_option("alembic", "file_template", "%%(rev)s")
-        cfg.set_section_option("alembic", "prepend_sys_path", ".")
-        _LOG.debug("alembic_folder: %r, single_tree: %r", alembic_folder, single_tree)
-
-        migrate_trees = trees.MigrationTrees("sql", mig_path)
-        if single_tree:
-            version_locations = [migrate_trees.version_location(single_tree, relative=False)]
-        else:
-            version_locations = migrate_trees.version_locations(relative=False)
-        _LOG.debug("version_locations: %r", version_locations)
-        cfg.set_main_option("version_locations", " ".join(version_locations))
-
-        # override default file template
-        cfg.set_main_option("file_template", "%%(rev)s")
-
-        # we do not use these options, this is just to make sure that
-        # their sections exists.
-        cfg.set_section_option("dax_apdb_migrate", "_dax_apdb_migrate", "")
-        cfg.set_section_option("dax_apdb_migrate_options", "_dax_apdb_migrate_options", "")
+        cfg = cls(mig_path, "sql", single_tree=single_tree, migration_options=migration_options)
 
         if db is not None:
             # URL may contain URL-encoded items which include % sign, and that
@@ -93,20 +67,4 @@ class MigAlembicConfig(Config):
             if db.schema:
                 cfg.set_section_option("dax_apdb_migrate", "schema", db.schema)
 
-        if migration_options:
-            for key, value in migration_options.items():
-                cfg.set_section_option("dax_apdb_migrate_options", key, value)
-
         return cfg
-
-    def get_template_directory(self) -> str:
-        """Return the directory where Alembic setup templates are found.
-
-        This overrides method from alembic Config to copy templates for our own
-        location.
-        """
-        package_dir = os.environ.get(_MIGRATE_PACKAGE_ENV)
-        if not package_dir:
-            raise ValueError(f"{_MIGRATE_PACKAGE_ENV} environment variable is not defined")
-
-        return os.path.join(package_dir, "templates")

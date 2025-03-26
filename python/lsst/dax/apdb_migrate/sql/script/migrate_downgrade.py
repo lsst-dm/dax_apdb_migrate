@@ -61,7 +61,7 @@ def migrate_downgrade(
             "Alembic version table does not exist, you may need to run `apdb-migrate-sql stamp` first."
         )
 
-    cfg = config.MigAlembicConfig.from_mig_path(mig_path, db=db, migration_options=options)
+    cfg = config.ApdbMigConfigSql.from_mig_path(mig_path, db=db, migration_options=options)
 
     # check that alembic versions are consistent with butler
     script_info = scripts.Scripts(cfg)

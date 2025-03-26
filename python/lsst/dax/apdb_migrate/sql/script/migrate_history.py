@@ -25,7 +25,7 @@ from __future__ import annotations
 
 from alembic import command
 
-from .. import config
+from ... import config
 
 
 def migrate_history(tree_name: str, mig_path: str, verbose: bool) -> None:
@@ -42,8 +42,8 @@ def migrate_history(tree_name: str, mig_path: str, verbose: bool) -> None:
     """
     # limit to a single location if tree name is given
     if tree_name:
-        cfg = config.MigAlembicConfig.from_mig_path(mig_path, single_tree=tree_name)
+        cfg = config.ApdbMigConfig(mig_path, "sql", single_tree=tree_name)
     else:
-        cfg = config.MigAlembicConfig.from_mig_path(mig_path)
+        cfg = config.ApdbMigConfig(mig_path, "sql")
 
     command.history(cfg, verbose=verbose)
