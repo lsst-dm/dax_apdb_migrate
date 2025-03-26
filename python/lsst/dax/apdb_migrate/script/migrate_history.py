@@ -25,7 +25,7 @@ from __future__ import annotations
 
 from alembic import command
 
-from ... import config
+from .. import config
 
 
 def migrate_history(tree_name: str, mig_path: str, verbose: bool) -> None:

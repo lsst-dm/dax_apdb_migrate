@@ -26,8 +26,8 @@ import os
 
 from alembic import command
 
-from ... import config, revision
-from ...trees import MigrationTrees
+from .. import config, revision
+from ..trees import MigrationTrees
 
 _LOG = logging.getLogger(__name__)
 
