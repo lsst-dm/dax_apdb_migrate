@@ -41,20 +41,17 @@ class MigrationTreesTestCase(unittest.TestCase):
 
     def test_migrations_folder(self) -> None:
         """Test migrations_folder method."""
-        with patch.dict(os.environ, {"DAX_APDB_MIGRATE_MIGRATIONS": "/migrations"}, clear=True):
-            self.assertEqual(MigrationTrees.migrations_folder("any"), "/migrations")
-
         with patch.dict(os.environ, {"DAX_APDB_MIGRATE_DIR": "/dax_apd_migrate"}, clear=True):
             self.assertEqual(MigrationTrees.migrations_folder("any"), "/dax_apd_migrate/migrations/any")
 
         with patch.dict(os.environ, {}, clear=True):
             with self.assertRaises(ValueError):
-                print(MigrationTrees.migrations_folder("any"))
+                print(MigrationTrees.migrations_folder(backend="any"))
 
     def test_methods(self) -> None:
         """Test various methods of the class."""
         with patch.dict(os.environ, {"DAX_APDB_MIGRATE_DIR": self.tempdir}, clear=True):
-            trees = MigrationTrees("sql")
+            trees = MigrationTrees(backend="sql")
 
             sql_migrations = os.path.join(self.tempdir, "migrations", "sql")
 
@@ -81,6 +78,11 @@ class MigrationTreesTestCase(unittest.TestCase):
                     os.path.join(sql_migrations, "something"),
                 },
             )
+
+    def test_errors(self) -> None:
+        """Test exceptions."""
+        with self.assertRaisesRegex(ValueError, "`backend` parameter must be set"):
+            _ = MigrationTrees()
 
 
 if __name__ == "__main__":

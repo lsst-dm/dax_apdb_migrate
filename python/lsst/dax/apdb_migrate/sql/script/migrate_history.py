@@ -42,8 +42,8 @@ def migrate_history(tree_name: str, mig_path: str, verbose: bool) -> None:
     """
     # limit to a single location if tree name is given
     if tree_name:
-        cfg = config.ApdbMigConfig(mig_path, "sql", single_tree=tree_name)
+        cfg = config.ApdbMigConfig(mig_path, single_tree=tree_name)
     else:
-        cfg = config.ApdbMigConfig(mig_path, "sql")
+        cfg = config.ApdbMigConfig(mig_path)
 
     command.history(cfg, verbose=verbose)

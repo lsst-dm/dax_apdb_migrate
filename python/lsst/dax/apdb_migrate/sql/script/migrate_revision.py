@@ -60,10 +60,10 @@ def migrate_revision(mig_path: str, tree_name: str, version: str) -> None:
         Raised if given revision tree name does not exist.
     """
     # We want to keep trees in separate directories
-    migrate_trees = trees.MigrationTrees("sql", mig_path)
+    migrate_trees = trees.MigrationTrees(mig_path=mig_path)
     tree_folder = migrate_trees.version_location(tree_name, relative=False)
 
-    cfg = config.ApdbMigConfig(mig_path, "sql")
+    cfg = config.ApdbMigConfig(mig_path)
     scripts = ScriptDirectory.from_config(cfg)
 
     # make sure that tree root is defined

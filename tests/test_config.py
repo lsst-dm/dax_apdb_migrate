@@ -45,7 +45,7 @@ class ApdbMigConfigTestCase(unittest.TestCase):
     def test_config(self) -> None:
         """Test migrations_folder method."""
         with patch.dict(os.environ, {"DAX_APDB_MIGRATE_DIR": "/dax_apd_migrate"}, clear=True):
-            config = ApdbMigConfig(self.migrations, "sql")
+            config = ApdbMigConfig(self.migrations)
 
             self.assertEqual(
                 config.get_main_option("script_location"), os.path.join(self.migrations, "_alembic")
@@ -63,7 +63,7 @@ class ApdbMigConfigTestCase(unittest.TestCase):
     def test_config_single_tree(self) -> None:
         """Test migrations_folder method."""
         with patch.dict(os.environ, {"DAX_APDB_MIGRATE_DIR": "/dax_apd_migrate"}, clear=True):
-            config = ApdbMigConfig(self.migrations, "sql", single_tree="schema")
+            config = ApdbMigConfig(self.migrations, single_tree="schema")
 
             self.assertEqual(
                 config.get_main_option("script_location"), os.path.join(self.migrations, "_alembic")
@@ -77,7 +77,7 @@ class ApdbMigConfigTestCase(unittest.TestCase):
         with patch.dict(os.environ, {"DAX_APDB_MIGRATE_DIR": "/dax_apd_migrate"}, clear=True):
             options = {"option1": "test1", "option2": "test2"}
 
-            config = ApdbMigConfig(self.migrations, "sql", migration_options=options)
+            config = ApdbMigConfig(self.migrations, migration_options=options)
 
             for key, value in options.items():
                 self.assertEqual(config.get_section_option("dax_apdb_migrate_options", key), value)

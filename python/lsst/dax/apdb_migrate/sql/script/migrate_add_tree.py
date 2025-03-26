@@ -59,14 +59,14 @@ def migrate_add_tree(tree_name: str, mig_path: str) -> None:
     if "/" in tree_name:
         raise ValueError("Regular tree name cannot have slash character: f{tree_name}.")
 
-    trees = MigrationTrees("sql", mig_path)
+    trees = MigrationTrees(mig_path=mig_path)
 
     # check that its folder does not exist yet
     tree_folder = trees.version_location(tree_name, relative=False)
     if os.access(tree_folder, os.F_OK):
         raise ValueError(f"Version tree {tree_name!r} already exists in {tree_folder}")
 
-    cfg = config.ApdbMigConfig(mig_path, "sql", single_tree=tree_name)
+    cfg = config.ApdbMigConfig(mig_path, single_tree=tree_name)
 
     # may need to initialize the whole shebang
     alembic_folder = trees.alembic_folder(relative=False)

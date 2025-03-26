@@ -56,7 +56,7 @@ class ApdbMigConfigSql(config.ApdbMigConfig):
             Additional options that can be passed to migration script via the
             configuration object, in a section "dax_apdb_migrate_options".
         """
-        cfg = cls(mig_path, "sql", single_tree=single_tree, migration_options=migration_options)
+        cfg = cls(mig_path, single_tree=single_tree, migration_options=migration_options)
 
         if db is not None:
             # URL may contain URL-encoded items which include % sign, and that
