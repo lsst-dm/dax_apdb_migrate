@@ -26,9 +26,10 @@ from __future__ import annotations
 import logging
 
 from alembic import command
+from alembic.script import ScriptDirectory
 
 from ... import revision
-from .. import config, database, scripts
+from .. import config, database
 
 _LOG = logging.getLogger(__name__)
 
@@ -74,9 +75,9 @@ def migrate_stamp(
             # initial "tree-root" revision needs to be added to alembic
             # table, if that manager is defined in the migration trees.
             cfg = config.ApdbMigConfigSql.from_mig_path(mig_path, db=db)
-            script_info = scripts.Scripts(cfg)
+            script_info = ScriptDirectory.from_config(cfg)
             base_revision = revision.rev_id(tree_name)
-            if base_revision not in script_info.base_revisions():
+            if base_revision not in script_info.get_bases():
                 raise ValueError(f"Unknown tree name {tree_name} (not in the database or migrations)")
             revisions = {tree_name: base_revision}
 

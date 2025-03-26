@@ -26,8 +26,9 @@ from __future__ import annotations
 import logging
 
 from alembic import command
+from alembic.script import ScriptDirectory
 
-from .. import config, database, scripts
+from .. import config, database
 
 _LOG = logging.getLogger(__name__)
 
@@ -54,8 +55,8 @@ def migrate_current(db_url: str, schema: str | None, mig_path: str, verbose: boo
     cfg = config.ApdbMigConfigSql.from_mig_path(mig_path, db=db)
     if metadata:
         # Print current versions defined in butler.
-        script_info = scripts.Scripts(cfg)
-        heads = script_info.head_revisions()
+        script_info = ScriptDirectory.from_config(cfg)
+        heads = script_info.get_heads()
         tree_versions = db.tree_versions()
         if tree_versions:
             for tree, (version, rev_id) in sorted(tree_versions.items()):
@@ -70,5 +71,5 @@ def migrate_current(db_url: str, schema: str | None, mig_path: str, verbose: boo
     # complain if alembic_version table is there but does not match manager
     # versions
     if db.alembic_revisions():
-        script_info = scripts.Scripts(cfg)
-        db.validate_revisions(script_info.base_revisions())
+        script_info = ScriptDirectory.from_config(cfg)
+        db.validate_revisions(script_info.get_bases())
