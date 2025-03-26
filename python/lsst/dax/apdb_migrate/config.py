@@ -42,8 +42,6 @@ class ApdbMigConfig(Config):
     ----------
     mig_path : `str`
         Filesystem path to location of revision trees.
-    backend : `str`
-        Name of the backend database, e.g. "sql".
     single_tree : `str`, optional
         If provided then Alembic will be configured with a single version
         tree only.
@@ -55,7 +53,6 @@ class ApdbMigConfig(Config):
     def __init__(
         self,
         mig_path: str,
-        backend: str,
         *,
         single_tree: str | None = None,
         migration_options: dict[str, str] | None = None,
@@ -68,7 +65,7 @@ class ApdbMigConfig(Config):
         self.set_section_option("alembic", "prepend_sys_path", ".")
         _LOG.debug("alembic_folder: %r, single_tree: %r", alembic_folder, single_tree)
 
-        migrate_trees = trees.MigrationTrees(backend, mig_path)
+        migrate_trees = trees.MigrationTrees(mig_path=mig_path)
         if single_tree:
             version_locations = [migrate_trees.version_location(single_tree, relative=False)]
         else:

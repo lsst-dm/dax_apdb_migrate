@@ -30,24 +30,22 @@ class MigrationTrees:
 
     Parameters
     ----------
-    backend : `str`
-        Name of the databse backend type, e.g. "sql".
     mig_path : `str`, optional
         Top-level folder with migrations. If not specified, then the location
         returned from `migrations_folder` is used.
-    """
-
-    _MIGRATE_FOLDER_ENV = "DAX_APDB_MIGRATE_MIGRATIONS"
-    """Name of envvar that can be used to override location of top-level
-    migrations folder.
+    backend : `str`, optional
+        Name of the databse backend type, e.g. "sql". Must be specified if
+        ``mig_path`` is not set.
     """
 
     _MIGRATE_PACKAGE_ENV = "DAX_APDB_MIGRATE_DIR"
     """Name of envvar for location of a package containing default migrations.
     """
 
-    def __init__(self, backend: str, mig_path: str | None = None):
+    def __init__(self, *, mig_path: str | None = None, backend: str | None = None):
         if mig_path is None:
+            if not backend:
+                raise ValueError("`backend` parameter must be set if `mig_path` is not provided.")
             self.mig_path = self.migrations_folder(backend)
         else:
             self.mig_path = mig_path
@@ -66,17 +64,16 @@ class MigrationTrees:
         -------
         path : `str`
             Location of top-level folder containing all migrations.
+
+        Raises
+        ------
+        ValueError
+            Raised if ``DAX_APDB_MIGRATE_DIR`` envvar is not set.
         """
-        loc = os.environ.get(cls._MIGRATE_FOLDER_ENV)
-        if loc:
-            return loc
         loc = os.environ.get(cls._MIGRATE_PACKAGE_ENV)
-        if loc:
-            return os.path.join(loc, "migrations", backend)
-        raise ValueError(
-            f"None of {cls._MIGRATE_FOLDER_ENV} or {cls._MIGRATE_PACKAGE_ENV}"
-            " environment variables is defined"
-        )
+        if not loc:
+            raise ValueError(f"{cls._MIGRATE_PACKAGE_ENV} environment variable is not defined.")
+        return os.path.join(loc, "migrations", backend)
 
     def alembic_folder(self, *, relative: bool = True) -> str:
         """Return location of folder with alembic files.
