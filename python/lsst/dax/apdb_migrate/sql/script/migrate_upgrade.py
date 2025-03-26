@@ -26,8 +26,9 @@ from __future__ import annotations
 import logging
 
 from alembic import command
+from alembic.script import ScriptDirectory
 
-from .. import config, database, scripts
+from .. import config, database
 
 _LOG = logging.getLogger(__name__)
 
@@ -64,7 +65,7 @@ def migrate_upgrade(
     cfg = config.ApdbMigConfigSql.from_mig_path(mig_path, db=db, migration_options=options)
 
     # check that alembic versions are consistent with butler
-    script_info = scripts.Scripts(cfg)
-    db.validate_revisions(script_info.base_revisions())
+    script_info = ScriptDirectory.from_config(cfg)
+    db.validate_revisions(script_info.get_bases())
 
     command.upgrade(cfg, revision, sql=sql)
