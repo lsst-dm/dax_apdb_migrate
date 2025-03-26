@@ -38,6 +38,7 @@ test = [
 
 [project.scripts]
 "apdb-migrate-sql" = "lsst.dax.apdb_migrate.sql.cli.apdb_migrate_sql:main"
+"apdb-migrate-cassandra" = "lsst.dax.apdb_migrate.cassandra.cli.apdb_migrate_cassandra:main"
 
 [tool.setuptools.packages.find]
 where = ["python"]
