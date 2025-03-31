@@ -41,3 +41,11 @@ mig_path_exist = click.option(
     metavar="PATH",
     default=_DEFAULT_MIGRATIONS,
 )
+
+port = click.option(
+    "--port",
+    type=int,
+    help="Port number for Cassandra connection",
+    metavar="PORT",
+    default=None,
+)

@@ -29,6 +29,7 @@ import click
 from ... import init_logging
 from ... import script as common_script
 from ...cli import common_options
+from .. import script
 from . import options
 
 CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
@@ -84,3 +85,18 @@ def show_history(*args: Any, **kwargs: Any) -> None:
 def show_trees(*args: Any, **kwargs: Any) -> None:
     """Print a list of known revision trees (manager types)."""
     common_script.migrate_show_trees(*args, **kwargs)
+
+
+@main.command(short_help="Display current revisions for a database.")
+@common_options.verbose
+@options.mig_path_exist
+@options.port
+@click.argument("host")
+@click.argument("keyspace")
+def show_current(*args: Any, **kwargs: Any) -> None:
+    """Display current revisions stored in metadata table.
+
+    HOST specifies Cassandra host name to connect to.
+    KEYSPACE specifies Cassandra keyspace name.
+    """
+    script.migrate_current(*args, **kwargs)
