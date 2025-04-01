@@ -32,7 +32,7 @@ from ..trees import MigrationTrees
 _LOG = logging.getLogger(__name__)
 
 
-def migrate_add_tree(tree_name: str, mig_path: str) -> None:
+def migrate_add_tree(tree_name: str, mig_path: str, template: str = "generic") -> None:
     """Add one more revision tree.
 
     Parameters
@@ -41,6 +41,8 @@ def migrate_add_tree(tree_name: str, mig_path: str) -> None:
         Name of the revision tree.
     mig_path : `str`
         Filesystem path to location of revisions.
+    template : `str`
+        NAme of the templates to use.
 
     Raises
     ------
@@ -77,7 +79,6 @@ def migrate_add_tree(tree_name: str, mig_path: str) -> None:
         cfg.config_file_name = os.path.join(alembic_folder, "alembic.ini")
 
         # initialize tree folder
-        template = "generic"
         command.init(cfg, directory=alembic_folder, template=template)
 
         # As we don't use config file, just drop it to avoid confusion.

@@ -19,6 +19,31 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from .migrate_current import migrate_current
-from .migrate_downgrade import migrate_downgrade
-from .migrate_upgrade import migrate_upgrade
+from __future__ import annotations
+
+from typing import cast
+
+from alembic import context
+from lsst.dax.apdb_migrate.cassandra.config import ApdbMigConfigCassandra
+
+# This is the Alembic Config object, this is must be ApdbMigConfigCassandra
+# instance.
+config = cast(ApdbMigConfigCassandra, context.config)
+
+
+def run_migrations():
+    """Run migrations.
+
+    This creates a temporary in-memory table for alembic so that it knows
+    what are current revisions in Cassandra. Dry-run option is handled by
+    the Context class.
+    """
+    engine = config.db.make_alembic_db()
+    with engine.connect() as connection:
+        context.configure(connection=connection, target_metadata=None)
+
+        with context.begin_transaction():
+            context.run_migrations()
+
+
+run_migrations()

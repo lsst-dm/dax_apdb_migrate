@@ -52,3 +52,26 @@ def rev_id(*args: str) -> str:
     if len(result) > 32:
         result = uuid.uuid5(NS_UUID, result).hex[-12:]
     return result
+
+
+def unpack_revision(revision: str) -> tuple[str, str] | tuple[None, None]:
+    """Unpack revision string into tree name and version.
+
+    Parameters
+    ----------
+    revision : `str`
+        Revision string in a format constructed by `rev_id`.
+
+    Returns
+    -------
+    tree_name : `str` or `None`
+        Migration tree name.
+    version : `str` or `None`
+        Version number. Both ``tree_name`` and ``version`` are `None` when
+        revision string does not have underscore character.
+    """
+    tree, _, version = revision.partition("_")
+    if version:
+        return tree, version
+    else:
+        return None, None

@@ -166,3 +166,34 @@ class Database:
             pass
 
         return None
+
+    def make_alembic_db(self) -> sqlalchemy.Engine:
+        """Make in-memory SQLite database with populated alembic_version table.
+
+        Returns
+        -------
+        engine : `sqlalchemy.Engine`
+        """
+        # Get revisions from cassandra
+        revisions = [revision for _, revision in self.tree_versions().values()]
+        _LOG.debug("Found existing revisions in Cassandra: %s", revisions)
+
+        # Make in-memory database and table.
+        engine = sqlalchemy.create_engine("sqlite://")
+        metadata = sqlalchemy.MetaData()
+        table = sqlalchemy.schema.Table(
+            "alembic_version",
+            metadata,
+            sqlalchemy.Column("version_num", sqlalchemy.types.String(32), primary_key=True),
+        )
+        metadata.create_all(engine)
+        _LOG.debug("Created in-n memory alembic table: %s", table)
+
+        # Copy revisions.
+        insert = table.insert().values([{"version_num": revision} for revision in revisions])
+        with engine.begin() as conn:
+            conn.execute(insert)
+
+        _LOG.debug("populated in-memory alembic table with revisions: %s", revisions)
+
+        return engine

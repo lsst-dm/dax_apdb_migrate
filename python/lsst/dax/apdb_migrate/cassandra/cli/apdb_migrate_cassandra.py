@@ -51,6 +51,7 @@ def add_tree(*args: Any, **kwargs: Any) -> None:
     TREE_NAME argument provides the name of the new revision tree, it cannot
     include slash or special characters.
     """
+    kwargs = dict(kwargs, template="cassandra")
     common_script.migrate_add_tree(*args, **kwargs)
 
 
@@ -100,3 +101,53 @@ def show_current(*args: Any, **kwargs: Any) -> None:
     KEYSPACE specifies Cassandra keyspace name.
     """
     script.migrate_current(*args, **kwargs)
+
+
+@main.command(short_help="Upgrade schema to a specified revision.")
+@options.mig_path_exist
+@options.port
+@common_options.dry_run
+@common_options.options
+@click.argument("host")
+@click.argument("keyspace")
+@click.argument("revision")
+def upgrade(*args: Any, **kwargs: Any) -> None:
+    """Upgrade schema to a specified revision.
+
+    HOST specifies Cassandra host name to connect to.
+    KEYSPACE specifies Cassandra keyspace name.
+    REVISION is a target revision name.
+    """
+    # Convert list of key=value to dict
+    options = {}
+    for option in kwargs["options"]:
+        key, _, value = option.partition("=")
+        options[key] = value
+    kwargs["options"] = options
+
+    script.migrate_upgrade(*args, **kwargs)
+
+
+@main.command(short_help="Downgrade schema to a specified revision.")
+@options.mig_path_exist
+@options.port
+@common_options.dry_run
+@common_options.options
+@click.argument("host")
+@click.argument("keyspace")
+@click.argument("revision")
+def downgrade(*args: Any, **kwargs: Any) -> None:
+    """Downgrade schema to a specified revision.
+
+    HOST specifies Cassandra host name to connect to.
+    KEYSPACE specifies Cassandra keyspace name.
+    REVISION is a target revision name.
+    """
+    # Convert list of key=value to dict
+    options = {}
+    for option in kwargs["options"]:
+        key, _, value = option.partition("=")
+        options[key] = value
+    kwargs["options"] = options
+
+    script.migrate_downgrade(*args, **kwargs)

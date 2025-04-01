@@ -33,6 +33,7 @@ class ApdbMigConfigCassandra(config.ApdbMigConfig):
     """
 
     db: database.Database | None = None
+    dry_run: bool = False
 
     @classmethod
     def from_mig_path(
@@ -42,6 +43,7 @@ class ApdbMigConfigCassandra(config.ApdbMigConfig):
         db: database.Database | None = None,
         single_tree: str | None = None,
         migration_options: dict[str, str] | None = None,
+        dry_run: bool = False,
     ) -> ApdbMigConfigCassandra:
         """Create new configuration object.
 
@@ -57,11 +59,14 @@ class ApdbMigConfigCassandra(config.ApdbMigConfig):
         migration_options : `dict`, optional
             Additional options that can be passed to migration script via the
             configuration object, in a section "dax_apdb_migrate_options".
+        dry_run : `bool`
+            If True queries should be printed instead of executed.
         """
         cfg = cls(mig_path, single_tree=single_tree, migration_options=migration_options)
 
         cfg.db = db
         if db is not None:
             cfg.set_section_option("dax_apdb_migrate", "keyspace", db.keyspace)
+        cfg.dry_run = dry_run
 
         return cfg

@@ -30,26 +30,35 @@ from typing import TYPE_CHECKING
 import alembic
 import alembic.operations
 
+from .. import revision
+from .apdb_metadata import ApdbMetadata
 from .config import ApdbMigConfigCassandra
+from .database import Database
 
 if TYPE_CHECKING:
     from cassandra.cluster import Session
 
 
-class Context:
+class _Context:
     """Provides access to commonly-needed objects derived from the alembic
     migration context.
+
+    Parameters
+    ----------
+    session : `cassandra.cluster.Session`
+        Cassandra database connection.
+    db : `Database`
+        Database interface.
+    config : `ApdbMigConfigCassandra`
+        Migration configuration.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, session: Session, db: Database, config: ApdbMigConfigCassandra) -> None:
         # Alembic migration context for the DB being migrated.
         self.mig_context = alembic.context.get_context()
-
-        assert isinstance(alembic.context.config, ApdbMigConfigCassandra), "Expecting ApdbMigConfigCassandra"
-        self.config = alembic.context.config
-
-        assert self.config.db is not None
-        self.db = self.config.db
+        self.session = session
+        self.db = db
+        self.config = config
 
     def get_mig_option(self, option: str) -> str | None:
         """Retrieve option that was passed on the command line.
@@ -68,16 +77,64 @@ class Context:
         option_value : `str` or `None`
             Option value or `None` if option was not provided.
         """
-        assert self.mig_context.config is not None
-        return self.mig_context.config.get_section_option("dax_apdb_migrate_options", option)
+        return self.config.get_section_option("dax_apdb_migrate_options", option)
 
     @property
     def keyspace(self) -> str:
         """Keyspace name (`str`)"""
         return self.db.keyspace
 
-    @contextmanager
-    def session(self) -> Iterator[Session]:
-        """Make Cassandra session."""
-        with self.db.make_session() as session:
-            yield session
+    def update_tree_version(self, tree: str, version: str) -> None:
+        """Update version for the specified tree.
+
+        Parameters
+        ----------
+        tree : `str`
+            Tree name.
+        value : `str`
+            New version string.
+        """
+        meta = ApdbMetadata(self.session, self.keyspace)
+        meta.insert(f"version:{tree}", version)
+
+
+@contextmanager
+def Context(revision_or_tree: str, version_str: str | None = None) -> Iterator[_Context]:
+    """Create context manager for migration operations.
+
+    Parameters
+    ----------
+    revision_or_tree: `str`
+        This can be either full revision string, if ``version`` is not
+        specified, or revision tree name otherwise. If ``version`` is not given
+        then tree name and version are extracted from the revision.
+    version_str : `str`, optional
+        Version, must be specified if packed revision name cannot be unpacked.
+
+    Yeilds
+    ------
+    context : `_Context`
+        Object providing interface for migration operations.
+    """
+    # First maek sure that revision string looks reasonable.
+    if version_str:
+        tree = revision_or_tree
+        version = version_str
+    else:
+        unpacked_tree, unpacked_version = revision.unpack_revision(revision_or_tree)
+        if unpacked_tree is None or unpacked_version is None:
+            raise ValueError(f"Unsupported fromat of the revision string: {revision_or_tree}")
+        version = unpacked_version
+        tree = unpacked_tree
+
+    config = alembic.context.config
+    assert isinstance(config, ApdbMigConfigCassandra), "Expecting ApdbMigConfigCassandra"
+    assert config.db is not None
+
+    # Make new Cassandra session.
+    with config.db.make_session() as session:
+        ctx = _Context(session, config.db, config)
+        yield ctx
+
+        # If it ran to completion store new version number.
+        ctx.update_tree_version(tree, version)
