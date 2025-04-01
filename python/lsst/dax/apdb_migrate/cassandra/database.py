@@ -85,7 +85,7 @@ class Database:
             version string, and revision ID string/hash.
         """
         versions = {}
-        with self._make_session() as session:
+        with self.make_session() as session:
 
             meta = ApdbMetadata(session, self._keyspace)
             for name, value in meta.items():
@@ -101,7 +101,7 @@ class Database:
         return revisions
 
     @contextmanager
-    def _make_session(self) -> Iterator[Session]:
+    def make_session(self) -> Iterator[Session]:
         """Make Cassandra session."""
         cluster = Cluster(
             execution_profiles=self._make_profiles(),
