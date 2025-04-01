@@ -23,9 +23,10 @@ from __future__ import annotations
 
 __all__ = ("Context",)
 
+import logging
 from collections.abc import Iterator
 from contextlib import contextmanager
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import alembic
 import alembic.operations
@@ -37,6 +38,20 @@ from .database import Database
 
 if TYPE_CHECKING:
     from cassandra.cluster import Session
+
+_LOG = logging.getLogger(__name__)
+
+
+class DryRunSession:
+    """A replacement for Cassandra session that prints queries instead of
+    executing them.
+    """
+
+    def execute(self, query: Any, parameters: Any) -> Any:
+        _LOG.info("Query: '%s', parameters: %s", query, parameters)
+
+    def prepare(self, query: str) -> Any:
+        raise NotImplementedError()
 
 
 class _Context:
@@ -83,6 +98,9 @@ class _Context:
     def keyspace(self) -> str:
         """Keyspace name (`str`)"""
         return self.db.keyspace
+
+    def execute(self, query: Any, parameters: Any) -> Any:
+        return self.session.execute(query, parameters)
 
     def update_tree_version(self, tree: str, version: str) -> None:
         """Update version for the specified tree.
@@ -131,10 +149,17 @@ def Context(revision_or_tree: str, version_str: str | None = None) -> Iterator[_
     assert isinstance(config, ApdbMigConfigCassandra), "Expecting ApdbMigConfigCassandra"
     assert config.db is not None
 
-    # Make new Cassandra session.
-    with config.db.make_session() as session:
+    if config.dry_run:
+        # Use query-printing session instead of makeing a real one.
+        session = DryRunSession()
         ctx = _Context(session, config.db, config)
         yield ctx
 
-        # If it ran to completion store new version number.
-        ctx.update_tree_version(tree, version)
+    else:
+        # Make actual Cassandra session.
+        with config.db.make_session() as session:
+            ctx = _Context(session, config.db, config)
+            yield ctx
+
+    # If it ran to completion store new version number.
+    ctx.update_tree_version(tree, version)

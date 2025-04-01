@@ -23,7 +23,15 @@ from __future__ import annotations
 
 __all__ = ["ApdbMetadata"]
 
-from cassandra.cluster import Session
+from typing import Any, Protocol
+
+
+class Session(Protocol):
+    """Protocol for Cassandra Session, implementations will exist that just
+    print queries instead of executing them.
+    """
+
+    def execute(self, query: Any, parameters: Any) -> Any: ...
 
 
 class ApdbMetadata:
