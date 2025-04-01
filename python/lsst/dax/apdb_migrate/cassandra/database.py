@@ -35,6 +35,7 @@ from cassandra.policies import RoundRobinPolicy
 from lsst.utils.db_auth import DbAuth, DbAuthNotFoundError
 
 from .. import revision
+from .apdb_metadata import ApdbMetadata
 
 _LOG = logging.getLogger(__name__)
 
@@ -86,10 +87,9 @@ class Database:
         versions = {}
         with self._make_session() as session:
 
-            query = f'SELECT name, value FROM "{self._keyspace}".metadata WHERE meta_part = 0'
-            for row in session.execute(query):
-                name, value = row
-                if name.startswith("version:"):
+            meta = ApdbMetadata(session, self._keyspace)
+            for name, value in meta.items():
+                if name.startswith("version:") and value is not None:
                     versions[name.partition(":")[-1]] = value
 
         revisions: dict[str, tuple[str, str]] = {}
