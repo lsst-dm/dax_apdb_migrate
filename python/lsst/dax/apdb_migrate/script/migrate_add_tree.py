@@ -89,7 +89,7 @@ def migrate_add_tree(tree_name: str, mig_path: str, template: str = "generic") -
         os.rmdir(os.path.join(alembic_folder, "versions"))
 
     # create initial branch revision in a separate folder
-    message = f"This is an initial pseudo-revision of the {tree_name!r} tree."
+    message = f"The initial pseudo-revision of the {tree_name!r} tree."
     rev_id = revision.rev_id(tree_name)
     command.revision(
         cfg, head="base", rev_id=rev_id, branch_label=tree_name, version_path=tree_folder, message=message

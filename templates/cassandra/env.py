@@ -31,13 +31,14 @@ from lsst.dax.apdb_migrate.cassandra.config import ApdbMigConfigCassandra
 config = cast(ApdbMigConfigCassandra, context.config)
 
 
-def run_migrations():
+def run_migrations() -> None:
     """Run migrations.
 
     This creates a temporary in-memory table for alembic so that it knows
     what are current revisions in Cassandra. Dry-run option is handled by
     the Context class.
     """
+    assert config.db is not None
     engine = config.db.make_alembic_db()
     with engine.connect() as connection:
         context.configure(connection=connection, target_metadata=None)
