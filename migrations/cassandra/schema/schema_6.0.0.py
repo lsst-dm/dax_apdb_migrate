@@ -24,13 +24,28 @@ def upgrade() -> None:
     Summary of changes:
       - Add empty pixelFlags_nodata and pixelFlags_nodataCenter columns.
     """
-    with Context(revision) as ctx:  # noqa: F841
-        # Add code to upgrade the schema using ctx.execute() method.
-        raise NotImplementedError("Not implemented yet")
+    _migrate(True, revision)
 
 
 def downgrade() -> None:
     """Undo changes applied in `upgrade`."""
-    with Context(down_revision) as ctx:  # noqa: F841
-        # Add code to downgrade the schema using ctx.execute() method.
-        raise NotImplementedError("Not implemented yet")
+    _migrate(False, down_revision)
+
+
+def _migrate(add: bool, final_revision: str) -> None:
+    # Do schema migrations.
+    with Context(final_revision) as ctx:
+        new_columns = ["pixelFlags_nodata", "pixelFlags_nodataCenter"]
+        tables = ["DiaSource"]
+        if ctx.has_replicas():
+            tables.append("DiaSourceChunks")
+
+        for table in tables:
+            for column in new_columns:
+                if add:
+                    _LOG.info("Adding column %s to table %s", column, table)
+                    query = f'ALTER TABLE "{ctx.keyspace}"."{table}" ADD "{column}" BOOLEAN'
+                else:
+                    _LOG.info("Dropping column %s from table %s", column, table)
+                    query = f'ALTER TABLE "{ctx.keyspace}"."{table}" DROP "{column}"'
+                ctx.update(query)

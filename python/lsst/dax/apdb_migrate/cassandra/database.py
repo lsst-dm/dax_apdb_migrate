@@ -124,6 +124,7 @@ class Database:
 
         finally:
 
+            cluster.shutdown()
             del cluster
 
     def _make_profiles(self) -> Mapping[Any, ExecutionProfile]:

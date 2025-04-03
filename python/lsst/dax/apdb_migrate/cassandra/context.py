@@ -23,13 +23,13 @@ from __future__ import annotations
 
 __all__ = ("Context",)
 
+import json
 import logging
-from collections.abc import Iterator
+from collections.abc import Iterator, Mapping, Sequence
 from contextlib import contextmanager
 from typing import TYPE_CHECKING, Any
 
 import alembic
-import alembic.operations
 
 from .. import revision
 from .apdb_metadata import ApdbMetadata
@@ -37,6 +37,7 @@ from .config import ApdbMigConfigCassandra
 from .database import Database
 
 if TYPE_CHECKING:
+    import cassandra.query
     from cassandra.cluster import Session
 
 _LOG = logging.getLogger(__name__)
@@ -60,20 +61,41 @@ class _Context:
 
     Parameters
     ----------
-    session : `cassandra.cluster.Session`
-        Cassandra database connection.
+    query_session : `cassandra.cluster.Session`
+        Cassandra database connection used for SELECT queries.
+    update_session : `cassandra.cluster.Session`
+        Cassandra database connection used for modifying queries.
     db : `Database`
         Database interface.
     config : `ApdbMigConfigCassandra`
         Migration configuration.
     """
 
-    def __init__(self, session: Session, db: Database, config: ApdbMigConfigCassandra) -> None:
+    metadataConfigKey = "config:apdb-cassandra.json"
+
+    def __init__(
+        self,
+        query_session: Session,
+        update_session: Session | DryRunSession,
+        db: Database,
+        config: ApdbMigConfigCassandra,
+    ) -> None:
         # Alembic migration context for the DB being migrated.
         self.mig_context = alembic.context.get_context()
-        self.session = session
+        self._query_session = query_session
+        self._update_session = update_session
         self.db = db
         self.config = config
+
+    @property
+    def dry_run(self) -> bool:
+        """True when the dry-run option is set."""
+        return self.config.dry_run
+
+    @property
+    def session(self) -> Session | DryRunSession:
+        """Session used for running database updates."""
+        return self._update_session
 
     def get_mig_option(self, option: str) -> str | None:
         """Retrieve option that was passed on the command line.
@@ -99,8 +121,49 @@ class _Context:
         """Keyspace name (`str`)"""
         return self.db.keyspace
 
-    def execute(self, query: Any, parameters: Any) -> Any:
-        return self.session.execute(query, parameters)
+    def query(
+        self, query: str | cassandra.query.Statement, parameters: Sequence | Mapping | None = None
+    ) -> Any:
+        """Run a query against Cassandra backend, should only be used to
+        execute SELECT queries.
+
+        Parameters
+        ----------
+        query : `str` or `cassandra.query.Statement`
+            Query string or `cassandra.query.Statement` instance. Only
+            SELECT queries are allowed here.
+        parameters : `~collections.abc.Sequence` or `~collections.abc.Mapping`
+            Query parameters.
+        """
+        return self._query_session.execute(query, parameters)
+
+    def update(
+        self, query: str | cassandra.query.Statement, parameters: Sequence | Mapping | None = None
+    ) -> Any:
+        """Run a query against Cassandra backend or print the query if dry-run
+        option is set, should be used to execute all modifying queries.
+
+        Parameters
+        ----------
+        query : `str` or `cassandra.query.Statement`
+            Query string or `cassandra.query.Statement` instance.
+        parameters : `~collections.abc.Sequence` or `~collections.abc.Mapping`
+            Query parameters.
+        """
+        return self._update_session.execute(query, parameters)
+
+    def get_apdb_config(self) -> dict[str, Any]:
+        """Return frozen part of APDB config from metadata."""
+        meta = ApdbMetadata(self._query_session, self.keyspace)
+        config_json = meta.get(self.metadataConfigKey)
+        if not config_json:
+            raise LookupError(f"Cannot find {self.metadataConfigKey} in metadata table.")
+        return json.loads(config_json)
+
+    def has_replicas(self) -> bool:
+        """Return True if replication is enabled."""
+        apdb_config = self.get_apdb_config()
+        return apdb_config["enable_replica"]
 
     def update_tree_version(self, tree: str, version: str) -> None:
         """Update version for the specified tree.
@@ -112,7 +175,7 @@ class _Context:
         value : `str`
             New version string.
         """
-        meta = ApdbMetadata(self.session, self.keyspace)
+        meta = ApdbMetadata(self._update_session, self.keyspace)
         meta.insert(f"version:{tree}", version)
 
 
@@ -149,17 +212,14 @@ def Context(revision_or_tree: str, version_str: str | None = None) -> Iterator[_
     assert isinstance(config, ApdbMigConfigCassandra), "Expecting ApdbMigConfigCassandra"
     assert config.db is not None
 
-    if config.dry_run:
-        # Use query-printing session instead of makeing a real one.
-        session = DryRunSession()
-        ctx = _Context(session, config.db, config)
+    with config.db.make_session() as session:
+        update_session: Session | DryRunSession = session
+        if config.dry_run:
+            # Use query-printing session instead of a real one.
+            update_session = DryRunSession()
+
+        ctx = _Context(session, update_session, config.db, config)
         yield ctx
 
-    else:
-        # Make actual Cassandra session.
-        with config.db.make_session() as session:
-            ctx = _Context(session, config.db, config)
-            yield ctx
-
-    # If it ran to completion store new version number.
-    ctx.update_tree_version(tree, version)
+        # If it ran to completion store new version number.
+        ctx.update_tree_version(tree, version)

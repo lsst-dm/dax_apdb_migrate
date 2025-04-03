@@ -1,3 +1,4 @@
 click
 sqlalchemy
 alembic
+lsst-utils @ git+https://github.com/lsst/utils@main
