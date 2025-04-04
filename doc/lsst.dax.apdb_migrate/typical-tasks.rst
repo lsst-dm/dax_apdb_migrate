@@ -4,10 +4,6 @@ Typical migration tasks
 #######################
 
 Ths page collects some examples of typical migration tasks with some explanation.
-Examples below assume that the ``APDB_URL`` environment variable is set to a location of a APDB::
-
-    APDB_URL=postgresql://database-server.example.com/apdb
-
 As ``dax_apdb_migrate`` is not a part of the regular releases it has to be checked out from Github::
 
     $ git clone git@github.com:lsst-dm/dax_apdb_migrate
@@ -20,6 +16,10 @@ After this the CLI commands should be available for use.
 
 SQL Backend
 ===========
+
+Examples below assume that the ``APDB_URL`` environment variable is set to a location of a APDB::
+
+    APDB_URL=postgresql://database-server.example.com/apdb
 
 Below a re examples of commands that are typically used with SQL backend.
 
@@ -122,3 +122,33 @@ For example, to downgrade ``schema`` tree from current ``schema_1.0.0`` to previ
     $ apdb-migrate-sql downgrade -s SCHEMA_NAME $APDB_URL schema_0.1.1
 
 Of course, the migration script has to implement the ``downgrade()`` method for this, which may not always be true.
+
+
+Cassandra Backend
+=================
+
+Many aspects of Cassandra revision management are similar to SQL case.
+One obvious distinction is that Cassandra connection does not use URL, but a host name and keyspace name instead.
+Any host in a Cassandra cluster can be specified when executing migration scripts.
+
+Cassandra does not store Alembic revisions in a database, instead we generate them in a temporary SQLite database on each command.
+As a result, a separate step of stamping of the revisions is not needed for Cassandra.
+
+Checking schema revisions
+-------------------------
+
+The ``show-current`` command reports version numbers stored in APDB ``metadata`` table and their corresponding Alembic revisions:
+
+    $ apdb-migrate-cassandra show-current <host> <keyspace>
+    ApdbCassandra: 0.1.1 -> ApdbCassandra_0.1.1 (head)
+    ApdbCassandraReplica: 1.0.0 -> ApdbCassandraReplica_1.0.0 (head)
+    schema: 5.0.0 -> schema_5.0.0
+
+Updating schema
+---------------
+
+Upgrading and downgrading APDB schema works similarly to SQL, except that ``apdb-migrate-cassandra`` is used, e.g.:
+
+    $ apdb-migrate-cassandra upgrade <host> <keyspace> schema_6.0.0
+
+Some migration scripts may not implement ``downgrade()`` method, in that case ``downgrade`` command will raise ``NotImplementedError`` exception.
