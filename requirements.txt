@@ -1,3 +1,5 @@
 click
 sqlalchemy
 alembic
+cassandra-driver
+lsst-utils @ git+https://github.com/lsst/utils@main

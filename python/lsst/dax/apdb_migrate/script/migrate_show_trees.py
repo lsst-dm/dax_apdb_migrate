@@ -39,7 +39,7 @@ def migrate_show_trees(mig_path: str, verbose: bool) -> None:
         Print verbose information if this flag is true.
     """
     # import pdb; pdb.set_trace()
-    cfg = config.MigAlembicConfig.from_mig_path(mig_path)
+    cfg = config.ApdbMigConfig(mig_path)
     scripts = ScriptDirectory.from_config(cfg)
     bases = scripts.get_bases()
 

@@ -104,4 +104,22 @@ Implementation of the two methods is not always trivial.
 A good starting point for this is the `Alembic`_ documentation and examples in existing migration scripts.
 
 
+Cassandra backend
+=================
+
+Migration scripts for Cassandra are also managed and executed by Alembic.
+Their organization in ``dax_apdb_migrate`` is similar to SQL scripts, but they are located in ``migrations/cassandra`` folder.
+
+To generate new scripts or query existing scripts, ``apdb-migrate-cassandra`` command is used, which has the same sub-commands as ``apdb-migrate-sql``.
+
+Editing migration script
+------------------------
+
+Cassandra migration scripts cannot use ``sqlalchemy`` or ``alembic`` packages for querying or updating databse schema.
+Instead a simple interface is provided in the form of a context manager with a small set of methods.
+Context manager is also responsible for a transparent update of version numbers in the ``metadata`` table.
+
+For examples of using the context manager methods check existing migration scripts in ``migrations/cassandra`` folder.
+
+
 .. _Alembic: https://alembic.sqlalchemy.org/

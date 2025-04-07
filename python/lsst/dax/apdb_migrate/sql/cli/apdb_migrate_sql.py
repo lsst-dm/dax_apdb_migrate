@@ -19,49 +19,30 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import logging
+from __future__ import annotations
+
 from collections.abc import Iterable
 from typing import Any
 
 import click
 
+from ... import init_logging
+from ... import script as common_script
+from ...cli import common_options
 from .. import script
 from . import options
 
 CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
 
-_log_format = "%(asctime)s %(levelname)s %(name)s - %(message)s"
-
-
-def _init_logging(args: Iterable[str]) -> None:
-    """Configure Python logging based on command line options."""
-    global_level = logging.INFO
-    # Silence alembic by default
-    logger_levels: dict[str, int] = {"alembic": logging.WARNING}
-    for level_str in args:
-        for spec in level_str.split(","):
-            logger_name, sep, level_name = spec.rpartition("=")
-            level = logging.getLevelNamesMapping().get(level_name.upper())
-            if level is None:
-                raise ValueError(f"Unknown logging level {level_name!r} in {level_str!r}")
-            if logger_name:
-                logger_levels[logger_name] = level
-            else:
-                global_level = level
-
-    logging.basicConfig(level=global_level, format=_log_format)
-    for logger_name, level in logger_levels.items():
-        logging.getLogger(logger_name).setLevel(level)
-
 
 @click.group(context_settings=CONTEXT_SETTINGS)
-@options.log_level
-def cli(log_level: Iterable[str]) -> None:
+@common_options.log_level
+def main(log_level: Iterable[str]) -> None:
     """APDB schema migration tools for SQL backend."""
-    _init_logging(log_level)
+    init_logging(log_level)
 
 
-@cli.command(short_help="Create new revision tree.")
+@main.command(short_help="Create new revision tree.")
 @options.mig_path
 @click.argument("tree-name")
 def add_tree(*args: Any, **kwargs: Any) -> None:
@@ -70,10 +51,10 @@ def add_tree(*args: Any, **kwargs: Any) -> None:
     TREE_NAME argument provides the name of the new revision tree, it cannot
     include slash or special characters.
     """
-    script.migrate_add_tree(*args, **kwargs)
+    common_script.migrate_add_tree(*args, **kwargs)
 
 
-@cli.command(short_help="Create migration script for a new revision.")
+@main.command(short_help="Create migration script for a new revision.")
 @options.mig_path_exist
 @click.argument("tree-name")
 @click.argument("version")
@@ -83,11 +64,11 @@ def add_revision(*args: Any, **kwargs: Any) -> None:
     TREE_NAME argument provides the name of the revision tree.
     VERSION specifies new version string in MAJOR.MINOR.PATCH format.
     """
-    script.migrate_revision(*args, **kwargs)
+    common_script.migrate_revision(*args, **kwargs)
 
 
-@cli.command(short_help="Display current revisions for a database.")
-@options.verbose
+@main.command(short_help="Display current revisions for a database.")
+@common_options.verbose
 @click.option(
     "-m",
     "--metadata",
@@ -109,8 +90,8 @@ def show_current(*args: Any, **kwargs: Any) -> None:
     script.migrate_current(*args, **kwargs)
 
 
-@cli.command(short_help="Show revision history.")
-@options.verbose
+@main.command(short_help="Show revision history.")
+@common_options.verbose
 @options.mig_path_exist
 @click.argument("tree-name", required=False)
 def show_history(*args: Any, **kwargs: Any) -> None:
@@ -118,21 +99,21 @@ def show_history(*args: Any, **kwargs: Any) -> None:
 
     Optional TREE_NAME arguments specifies tree for which to display history.
     """
-    script.migrate_history(*args, **kwargs)
+    common_script.migrate_history(*args, **kwargs)
 
 
-@cli.command(short_help="Print a list of known revision trees.")
-@options.verbose
+@main.command(short_help="Print a list of known revision trees.")
+@common_options.verbose
 @options.mig_path_exist
 def show_trees(*args: Any, **kwargs: Any) -> None:
     """Print a list of known revision trees (manager types)."""
-    script.migrate_show_trees(*args, **kwargs)
+    common_script.migrate_show_trees(*args, **kwargs)
 
 
-@cli.command(short_help="Stamp alembic revision table with current metadata versions.")
+@main.command(short_help="Stamp alembic revision table with current metadata versions.")
 @options.mig_path_exist
 @options.stamp_purge
-@options.dry_run
+@common_options.dry_run
 @options.schema
 @click.argument("db-url")
 @click.argument("tree-name", required=False)
@@ -147,11 +128,11 @@ def stamp(*args: Any, **kwargs: Any) -> None:
     script.migrate_stamp(*args, **kwargs)
 
 
-@cli.command(short_help="Upgrade schema to a specified revision.")
+@main.command(short_help="Upgrade schema to a specified revision.")
 @options.mig_path_exist
 @options.dump_sql
 @options.schema
-@options.options
+@common_options.options
 @click.argument("db-url")
 @click.argument("revision")
 def upgrade(*args: Any, **kwargs: Any) -> None:
@@ -171,11 +152,11 @@ def upgrade(*args: Any, **kwargs: Any) -> None:
     script.migrate_upgrade(*args, **kwargs)
 
 
-@cli.command(short_help="Downgrade schema to a specified revision.")
+@main.command(short_help="Downgrade schema to a specified revision.")
 @options.mig_path_exist
 @options.dump_sql
 @options.schema
-@options.options
+@common_options.options
 @click.argument("db-url")
 @click.argument("revision")
 def downgrade(*args: Any, **kwargs: Any) -> None:

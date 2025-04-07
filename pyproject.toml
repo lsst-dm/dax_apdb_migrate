@@ -23,7 +23,8 @@ classifiers = [
 keywords = ["lsst"]
 dependencies = [
     "sqlalchemy",
-    "alembic"
+    "alembic",
+    "lsst-utils"
 ]
 dynamic = ["version"]
 
@@ -35,6 +36,11 @@ test = [
     "pytest >= 3.2",
     "pytest-openfiles >= 0.5.0"
 ]
+cassandra = ["cassandra-driver"]
+
+[project.scripts]
+"apdb-migrate-sql" = "lsst.dax.apdb_migrate.sql.cli.apdb_migrate_sql:main"
+"apdb-migrate-cassandra" = "lsst.dax.apdb_migrate.cassandra.cli.apdb_migrate_cassandra:main"
 
 [tool.setuptools.packages.find]
 where = ["python"]

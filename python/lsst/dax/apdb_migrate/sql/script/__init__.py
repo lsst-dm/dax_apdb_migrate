@@ -19,11 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from .migrate_add_tree import migrate_add_tree
 from .migrate_current import migrate_current
 from .migrate_downgrade import migrate_downgrade
-from .migrate_history import migrate_history
-from .migrate_revision import migrate_revision
-from .migrate_show_trees import migrate_show_trees
 from .migrate_stamp import migrate_stamp
 from .migrate_upgrade import migrate_upgrade

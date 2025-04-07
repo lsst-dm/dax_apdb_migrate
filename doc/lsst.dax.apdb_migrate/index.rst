@@ -39,7 +39,13 @@ Migrations that exist for SQL backend:
    migrations/sql/schema.rst
    migrations/sql/ApdbSql.rst
 
-There are no migrations defined for Cassandra backend at this point.
+Migrations that exist for Cassandra backend:
+
+.. toctree::
+   :maxdepth: 1
+
+   migrations/cassandra/schema.rst
+   migrations/cassandra/ApdbCassandra.rst
 
 
 Implementation details
