@@ -33,7 +33,7 @@ def init_logging(args: Iterable[str]) -> None:
     """Configure Python logging based on command line options."""
     global_level = logging.INFO
     # Silence alembic by default
-    logger_levels: dict[str, int] = {"alembic": logging.WARNING}
+    logger_levels: dict[str, int] = {"alembic": logging.WARNING, "cassandra": logging.WARNING}
     for level_str in args:
         for spec in level_str.split(","):
             logger_name, sep, level_name = spec.rpartition("=")

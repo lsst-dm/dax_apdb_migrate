@@ -133,11 +133,19 @@ class Database:
         default_profile = ExecutionProfile(
             consistency_level=ConsistencyLevel.LOCAL_QUORUM,
             request_timeout=3600.0,
+            row_factory=cassandra.query.named_tuple_factory,
+            load_balancing_policy=loadBalancePolicy,
+        )
+        # read_tuples may be useful if number of rows is very large.
+        read_tuples = ExecutionProfile(
+            consistency_level=ConsistencyLevel.LOCAL_QUORUM,
+            request_timeout=3600.0,
             row_factory=cassandra.query.tuple_factory,
             load_balancing_policy=loadBalancePolicy,
         )
         return {
             EXEC_PROFILE_DEFAULT: default_profile,
+            "read_tuples": read_tuples,
         }
 
     def _make_auth_provider(self) -> AuthProvider | None:
