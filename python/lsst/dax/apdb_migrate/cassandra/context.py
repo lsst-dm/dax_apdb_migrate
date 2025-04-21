@@ -160,6 +160,12 @@ class _Context:
             raise LookupError(f"Cannot find {self.metadataConfigKey} in metadata table.")
         return json.loads(config_json)
 
+    def store_apdb_config(self, config: dict[str, Any]) -> None:
+        """Store frozen part of APDB config to metadata."""
+        json_str = json.dumps(config)
+        meta = ApdbMetadata(self._update_session, self.keyspace)
+        meta.insert(self.metadataConfigKey, json_str)
+
     def has_replicas(self) -> bool:
         """Return True if replication is enabled."""
         apdb_config = self.get_apdb_config()

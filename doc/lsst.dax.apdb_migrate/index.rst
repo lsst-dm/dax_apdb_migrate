@@ -46,6 +46,7 @@ Migrations that exist for Cassandra backend:
 
    migrations/cassandra/schema.rst
    migrations/cassandra/ApdbCassandra.rst
+   migrations/cassandra/ApdbCassandraReplica.rst
 
 
 Implementation details
