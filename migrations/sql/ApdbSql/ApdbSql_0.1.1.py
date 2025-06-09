@@ -32,7 +32,7 @@ def downgrade() -> None:
     _migrate(sqlalchemy.types.TIMESTAMP(timezone=False), version)
 
 
-def _migrate(type_: type, to_version: str) -> None:
+def _migrate(type_: sqlalchemy.types.TIMESTAMP, to_version: str) -> None:
     ctx = Context()
 
     # SQLite has no TIMEZONE, this migration is not needed.

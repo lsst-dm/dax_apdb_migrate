@@ -87,9 +87,9 @@ def _migrate(do_upgrade: bool, to_revision: str) -> None:
                 if inspector.has_table(extra_table, ctx.schema):
                     # DiaObjectLast has a subset of columns of ObjectTable.
                     table_columns[extra_table] = [
-                        col.name
+                        col.name  # type: ignore[attr-defined]
                         for col in inspector.get_columns(extra_table, ctx.schema)
-                        if col.name in columns
+                        if col.name in columns  # type: ignore[attr-defined]
                     ]
 
     # Do actual migration.
@@ -111,7 +111,7 @@ def _load_schema_model(schema_file: str) -> Any:
     # definition. For that we need to import felis model and here
     # we make sure that felis is setup.
     try:
-        import felis.datamodel
+        import felis.datamodel  # type: ignore[import-not-found]
     except ImportError:
         raise ImportError(
             "This migration requires `felis` package, please setup it before running this script."
@@ -121,7 +121,7 @@ def _load_schema_model(schema_file: str) -> Any:
         schemas_list = list(yaml.load_all(yaml_stream, Loader=yaml.SafeLoader))
         if len(schemas_list) > 1:
             raise ValueError(f"Schema file {schema_file!r} defines multiple schemas.")
-        felis_schema = felis.datamodel.Schema.model_validate(schemas_list[0])
+        felis_schema: Any = felis.datamodel.Schema.model_validate(schemas_list[0])
 
     return felis_schema
 
