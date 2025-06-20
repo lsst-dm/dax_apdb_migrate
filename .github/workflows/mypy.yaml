@@ -7,5 +7,20 @@ on:
   pull_request:
 
 jobs:
-  call-workflow:
+
+  # Mypy does not like repeating file names, have to check migration
+  # scripts separately.
+  mypy-default:
     uses: lsst/rubin_workflows/.github/workflows/mypy.yaml@main
+    with:
+      folders: "python tests"
+
+  mypy-migrations-sql:
+    uses: lsst/rubin_workflows/.github/workflows/mypy.yaml@main
+    with:
+      folders: "python migrations/sql"
+
+  mypy-migrations-cassandra:
+    uses: lsst/rubin_workflows/.github/workflows/mypy.yaml@main
+    with:
+      folders: "python migrations/cassandra"
