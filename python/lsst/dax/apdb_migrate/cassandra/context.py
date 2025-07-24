@@ -97,6 +97,11 @@ class _Context:
         """Session used for running database updates."""
         return self._update_session
 
+    @property
+    def metadata(self) -> ApdbMetadata:
+        """Metadata table interface (`ApdbMetadata`)."""
+        return ApdbMetadata(self._query_session, self.keyspace, update_session=self._update_session)
+
     def get_mig_option(self, option: str) -> str | None:
         """Retrieve option that was passed on the command line.
 
@@ -154,8 +159,7 @@ class _Context:
 
     def get_apdb_config(self) -> dict[str, Any]:
         """Return frozen part of APDB config from metadata."""
-        meta = ApdbMetadata(self._query_session, self.keyspace)
-        config_json = meta.get(self.metadataConfigKey)
+        config_json = self.metadata.get(self.metadataConfigKey)
         if not config_json:
             raise LookupError(f"Cannot find {self.metadataConfigKey} in metadata table.")
         return json.loads(config_json)
@@ -163,8 +167,7 @@ class _Context:
     def store_apdb_config(self, config: dict[str, Any]) -> None:
         """Store frozen part of APDB config to metadata."""
         json_str = json.dumps(config)
-        meta = ApdbMetadata(self._update_session, self.keyspace)
-        meta.insert(self.metadataConfigKey, json_str)
+        self.metadata.insert(self.metadataConfigKey, json_str)
 
     def has_replicas(self) -> bool:
         """Return True if replication is enabled."""
@@ -181,8 +184,7 @@ class _Context:
         value : `str`
             New version string.
         """
-        meta = ApdbMetadata(self._update_session, self.keyspace)
-        meta.insert(f"version:{tree}", version)
+        self.metadata.insert(f"version:{tree}", version)
 
 
 @contextmanager
