@@ -45,13 +45,14 @@ class ApdbMetadata:
         Name of Cassandra keyspace containing metadata table.
     """
 
-    def __init__(self, session: Session, keyspace: str):
+    def __init__(self, session: Session, keyspace: str, *, update_session: Session | None = None):
         self._session = session
+        self._update_session = update_session if update_session is not None else session
         self._keyspace = keyspace
         self._part = 0
 
     def items(self) -> list[tuple[str, str | None]]:
-        """Return all items in metadta table.
+        """Return all items in metadata table.
 
         Returns
         -------
@@ -81,7 +82,7 @@ class ApdbMetadata:
         return None
 
     def insert(self, name: str, value: str) -> None:
-        """Insert new parameter in butler_attributes table.
+        """Insert new parameter in metadata table.
 
         Parameters
         ----------
@@ -91,7 +92,18 @@ class ApdbMetadata:
             Attribute value.
         """
         query = f'INSERT INTO "{self._keyspace}".metadata (meta_part, name, value) VALUES (%s, %s, %s)'
-        self._session.execute(query, (self._part, name, value))
+        self._update_session.execute(query, (self._part, name, value))
+
+    def delete(self, name: str) -> None:
+        """Delete parameter from metadata table.
+
+        Parameters
+        ----------
+        name : `str`
+            Metadata key name.
+        """
+        query = f'DELETE FROM "{self._keyspace}".metadata WHERE meta_part = %s and name = %s'
+        self._update_session.execute(query, (self._part, name))
 
     def update_tree_version(self, tree: str, version: str) -> None:
         """Update version for the specified tree.
