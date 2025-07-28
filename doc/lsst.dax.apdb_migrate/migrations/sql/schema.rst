@@ -138,3 +138,16 @@ No additional parameters or packages are needed for this script.
 An example of migration::
 
     $ apdb-migrate-sql upgrade -s SCHEMA_NAME $APDB_URL schema_7.0.0
+
+Upgrade from 7.0.0 to 7.0.1
+===========================
+
+Migration script: `schema_7.0.1.py <https://github.com/lsst-dm/dax_apdb_migrate/blob/main/migrations/sql/schema/schema_7.0.1.py>`_
+
+Version 7.0.1 updates schema of ``MPCORB`` table, dropping and adding few columns.
+None of the existing APDB instances has ``MPCORB`` table yet, this migration is a no-op.
+No additional parameters or packages are needed for this script.
+
+An example of migration::
+
+    $ apdb-migrate-sql upgrade -s SCHEMA_NAME $APDB_URL schema_7.0.1
