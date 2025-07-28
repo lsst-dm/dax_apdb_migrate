@@ -25,7 +25,7 @@ __all__ = ("Context",)
 
 import contextlib
 from collections.abc import Iterator
-from typing import Any
+from typing import Any, Literal
 
 import alembic
 import alembic.operations
@@ -37,9 +37,24 @@ from .apdb_metadata import ApdbMetadata
 class Context:
     """Provides access to commonly-needed objects derived from the alembic
     migration context.
+
+    Parameters
+    ----------
+    revision : `str`
+        Revision string to use for updating version in metadata table on exit
+        from context manager. The string must have format
+        "<tree_name>_<version>".
+
+    Notes
+    -----
+    This class also works as a context manager. If ``revision`` is provided
+    then on exit from context manager (without exception) the metadata
+    table is updated with version and tree extracted from revision string.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, revision: str | None = None) -> None:
+        self._revision = revision
+
         # Alembic migration context for the DB being migrated.
         self.mig_context = alembic.context.get_context()
         # When we use schemas in postgres then all tables belong to the same
@@ -60,6 +75,16 @@ class Context:
         self.metadata = sqlalchemy.schema.MetaData(schema=self.schema)
         # APDB metadata interface.
         self.apdb_meta = ApdbMetadata(self.bind, self.schema)
+
+    def __enter__(self) -> Context:
+        """Enter the context."""
+        return self
+
+    def __exit__(self, exc_type: type | None, exc_value: Any, traceback: Any) -> Literal[False]:
+        if not exc_type and self._revision:
+            tree, _, version = self._revision.partition("_")
+            self.apdb_meta.update_tree_version(tree, version)
+        return False
 
     def get_table(self, table_name: str, reload: bool = False) -> sqlalchemy.Table:
         """Return SQLAlchemy table object for the current database.

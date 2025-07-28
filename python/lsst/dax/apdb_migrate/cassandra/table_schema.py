@@ -26,7 +26,7 @@ __all__ = ("Column", "TableSchema")
 import dataclasses
 from typing import Any, NamedTuple, cast
 
-from .context import _Context
+from .context import Context
 
 
 @dataclasses.dataclass
@@ -80,7 +80,7 @@ class TableSchema:
     table_options: dict[str, Any]
 
     @classmethod
-    def from_table(cls, ctx: _Context, table_name: str) -> TableSchema:
+    def from_table(cls, ctx: Context, table_name: str) -> TableSchema:
         """Contruct table schema from its database definition."""
         # Get the list of columns from existing table.
         query = (
