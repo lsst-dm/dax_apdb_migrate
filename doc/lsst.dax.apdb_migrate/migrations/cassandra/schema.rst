@@ -52,3 +52,15 @@ No additional parameters or packages are needed for this script.
 An example of migration::
 
     $ apdb-migrate-cassandra upgrade <host> <keyspace> schema_6.0.0
+
+Upgrade from 6.0.0 to 7.0.0
+===========================
+
+Migration script: `schema_7.0.0.py <https://github.com/lsst-dm/dax_apdb_migrate/blob/main/migrations/cassandra/schema/schema_7.0.0.py>`_
+
+This migration adds ``glint_trail`` column to ``DiaSource`` table(s) (and ``DiaSourceChunks`` if it exists), initially set to ``NULL``.
+No additional parameters or packages are needed for this script.
+
+An example of migration::
+
+    $ apdb-migrate-cassandra upgrade <host> <keyspace> schema_7.0.0
