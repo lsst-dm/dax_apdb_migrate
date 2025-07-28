@@ -25,16 +25,16 @@ __all__ = ("Context",)
 
 import json
 import logging
-from collections.abc import Iterator, Mapping, Sequence
-from contextlib import contextmanager
-from typing import TYPE_CHECKING, Any
+from collections.abc import Mapping, Sequence
+from contextlib import ExitStack
+from typing import TYPE_CHECKING, Any, Literal
 
 import alembic
 
 from .. import revision
 from .apdb_metadata import ApdbMetadata
 from .config import ApdbMigConfigCassandra
-from .database import Database
+from .schema import Schema
 
 if TYPE_CHECKING:
     import cassandra.query
@@ -55,12 +55,21 @@ class DryRunSession:
         raise NotImplementedError()
 
 
-class _Context:
+class Context:
     """Provides access to commonly-needed objects derived from the alembic
     migration context.
 
     Parameters
     ----------
+    revision_or_tree: `str`
+        This can be either full revision string, if ``version`` is not
+        specified, or revision tree name otherwise. If ``version`` is not given
+        then tree name and version are extracted from the revision.
+    version_str : `str`, optional
+        Version, must be specified if packed revision name cannot be unpacked.
+
+    Notes
+    -----
     query_session : `cassandra.cluster.Session`
         Cassandra database connection used for SELECT queries.
     update_session : `cassandra.cluster.Session`
@@ -73,19 +82,52 @@ class _Context:
 
     metadataConfigKey = "config:apdb-cassandra.json"
 
-    def __init__(
-        self,
-        query_session: Session,
-        update_session: Session | DryRunSession,
-        db: Database,
-        config: ApdbMigConfigCassandra,
-    ) -> None:
+    def __init__(self, revision_or_tree: str, version_str: str | None = None):
+        # First make sure that revision string looks reasonable.
+        if version_str:
+            self._tree = revision_or_tree
+            self._version = version_str
+        else:
+            unpacked_tree, unpacked_version = revision.unpack_revision(revision_or_tree)
+            if unpacked_tree is None or unpacked_version is None:
+                raise ValueError(f"Unsupported fromat of the revision string: {revision_or_tree}")
+            self._version = unpacked_version
+            self._tree = unpacked_tree
+
+        config = alembic.context.config
+        assert isinstance(config, ApdbMigConfigCassandra), "Expecting ApdbMigConfigCassandra"
+        self.config = config
+
         # Alembic migration context for the DB being migrated.
         self.mig_context = alembic.context.get_context()
-        self._query_session = query_session
-        self._update_session = update_session
-        self.db = db
-        self.config = config
+        self._query_session: Session | None = None
+        self._update_session: Session | DryRunSession | None = None
+        assert config.db is not None
+        self.db = config.db
+        self._stack = ExitStack()
+
+    def __enter__(self) -> Context:
+        session = self._stack.enter_context(self.db.make_session())
+        self._query_session = session
+        self._update_session = session
+        if self.dry_run:
+            # Use query-printing session instead of a real one.
+            self._update_session = DryRunSession()
+        else:
+            self._update_session = session
+        return self
+
+    def __exit__(self, exc_type: type | None, exc_value: Any, traceback: Any) -> Literal[False]:
+        # If it ran to completion store new version number.
+        assert self._query_session is not None
+        if exc_type is None:
+            self.update_tree_version(self._tree, self._version)
+        self._stack.__exit__(exc_type, exc_value, traceback)
+        return False
+
+    def _check_context(self) -> None:
+        if self._query_session is None:
+            raise TypeError("Cannot use this object outside context.")
 
     @property
     def dry_run(self) -> bool:
@@ -95,12 +137,22 @@ class _Context:
     @property
     def session(self) -> Session | DryRunSession:
         """Session used for running database updates."""
+        self._check_context()
         return self._update_session
 
     @property
     def metadata(self) -> ApdbMetadata:
         """Metadata table interface (`ApdbMetadata`)."""
+        self._check_context()
+        assert self._query_session is not None
         return ApdbMetadata(self._query_session, self.keyspace, update_session=self._update_session)
+
+    @property
+    def schema(self) -> Schema:
+        """Helper instance for schema queries (`Scchema`)."""
+        self._check_context()
+        assert self._query_session is not None
+        return Schema(self._query_session, self.keyspace, self.get_apdb_config())
 
     def get_mig_option(self, option: str) -> str | None:
         """Retrieve option that was passed on the command line.
@@ -140,6 +192,8 @@ class _Context:
         parameters : `~collections.abc.Sequence` or `~collections.abc.Mapping`
             Query parameters.
         """
+        self._check_context()
+        assert self._query_session is not None
         return self._query_session.execute(query, parameters)
 
     def update(
@@ -155,6 +209,8 @@ class _Context:
         parameters : `~collections.abc.Sequence` or `~collections.abc.Mapping`
             Query parameters.
         """
+        self._check_context()
+        assert self._update_session is not None
         return self._update_session.execute(query, parameters)
 
     def get_apdb_config(self) -> dict[str, Any]:
@@ -185,49 +241,3 @@ class _Context:
             New version string.
         """
         self.metadata.insert(f"version:{tree}", version)
-
-
-@contextmanager
-def Context(revision_or_tree: str, version_str: str | None = None) -> Iterator[_Context]:
-    """Create context manager for migration operations.
-
-    Parameters
-    ----------
-    revision_or_tree: `str`
-        This can be either full revision string, if ``version`` is not
-        specified, or revision tree name otherwise. If ``version`` is not given
-        then tree name and version are extracted from the revision.
-    version_str : `str`, optional
-        Version, must be specified if packed revision name cannot be unpacked.
-
-    Yeilds
-    ------
-    context : `_Context`
-        Object providing interface for migration operations.
-    """
-    # First maek sure that revision string looks reasonable.
-    if version_str:
-        tree = revision_or_tree
-        version = version_str
-    else:
-        unpacked_tree, unpacked_version = revision.unpack_revision(revision_or_tree)
-        if unpacked_tree is None or unpacked_version is None:
-            raise ValueError(f"Unsupported fromat of the revision string: {revision_or_tree}")
-        version = unpacked_version
-        tree = unpacked_tree
-
-    config = alembic.context.config
-    assert isinstance(config, ApdbMigConfigCassandra), "Expecting ApdbMigConfigCassandra"
-    assert config.db is not None
-
-    with config.db.make_session() as session:
-        update_session: Session | DryRunSession = session
-        if config.dry_run:
-            # Use query-printing session instead of a real one.
-            update_session = DryRunSession()
-
-        ctx = _Context(session, update_session, config.db, config)
-        yield ctx
-
-        # If it ran to completion store new version number.
-        ctx.update_tree_version(tree, version)

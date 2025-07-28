@@ -40,21 +40,11 @@ def upgrade() -> None:
     Summary of changes:
       - <Add summary of changes>.
     """
-    ctx = Context()
-
-    ${upgrades if upgrades else "raise NotImplementedError()"}
-
-    # Update metadata version.
-    tree, _, version = revision.partition("_")
-    ctx.apdb_meta.update_tree_version(tree, version)
+    with Context(revision) as ctx:
+        ${upgrades if upgrades else "raise NotImplementedError()"}
 
 
 def downgrade() -> None:
     """Undo changes applied in `upgrade`."""
-    ctx = Context()
-
-    ${downgrades if downgrades else "raise NotImplementedError()"}
-
-    # Update metadata version.
-    tree, _, version = down_revision.partition("_")
-    ctx.apdb_meta.update_tree_version(tree, version)
+    with Context(down_revision) as ctx:
+        ${downgrades if downgrades else "raise NotImplementedError()"}

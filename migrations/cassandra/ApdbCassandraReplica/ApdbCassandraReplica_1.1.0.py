@@ -7,7 +7,7 @@ Create Date: 2025-04-14 16:19:00.653340
 
 import logging
 
-from lsst.dax.apdb_migrate.cassandra.context import Context, _Context
+from lsst.dax.apdb_migrate.cassandra.context import Context
 from lsst.dax.apdb_migrate.cassandra.table_schema import Column, TableSchema
 
 # revision identifiers, used by Alembic.
@@ -59,7 +59,7 @@ def downgrade() -> None:
     raise NotImplementedError()
 
 
-def _make_new_chunks_table(ctx: _Context, table_name: str) -> None:
+def _make_new_chunks_table(ctx: Context, table_name: str) -> None:
     """Create new replica chunk table based on the existing table schema.
 
     New table adds `apdb_replica_subchunk` column which also becomes a part of
@@ -86,7 +86,7 @@ def _make_new_chunks_table(ctx: _Context, table_name: str) -> None:
     ctx.update(table_ddl)
 
 
-def _update_frozen_config(ctx: _Context) -> None:
+def _update_frozen_config(ctx: Context) -> None:
     """Update configuration stored in metadata."""
     config = ctx.get_apdb_config()
     # Use default value for this parameter.
