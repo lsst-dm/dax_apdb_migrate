@@ -26,10 +26,10 @@ import sqlalchemy
 from lsst.dax.apdb_migrate.sql.context import Context
 ${imports if imports else ""}
 # revision identifiers, used by Alembic.
-revision = ${repr(up_revision)}
-down_revision = ${repr(down_revision)}
-branch_labels = ${repr(branch_labels)}
-depends_on = ${repr(depends_on)}
+revision = ${dq(up_revision)}
+down_revision = ${dq(down_revision)}
+branch_labels = ${dq(branch_labels)}
+depends_on = ${dq(depends_on)}
 
 _LOG = logging.getLogger(__name__)
 

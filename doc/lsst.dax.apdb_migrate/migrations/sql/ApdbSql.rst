@@ -31,3 +31,17 @@ An example command for applying the schema upgrade::
 
     $ setup -k felis
     $ apdb-migrate-sql upgrade -s SCHEMA_NAME --options schema-file=/path/to/apdb.yaml $APDB_URL ApdbSql_0.1.2
+
+Upgrade from 0.1.2 to 1.0.0
+===========================
+
+Migration script: `ApdbSql_1.0.0.py <https://github.com/lsst-dm/dax_apdb_migrate/blob/main/migrations/sql/ApdbSql/ApdbSql_1.0.0.py>`_
+
+``ApdbSql`` code was updated to not fill ``lastNonForcedSource`` field, which makes it incompatible with the previous releases.
+The actual change to the schema (dropping of ``lastNonForcedSource`` and many other columns) is performed by migration to ``schema_8.0.0``.
+This migration only changes version of ``ApdbSql`` tree in the metadata.
+This migration has to be applied after migration to ``schema_8.0.0``, it will fail if ``schema`` version is older than ``8.0.0``.
+
+An example command for applying the schema upgrade::
+
+    $ apdb-migrate-sql upgrade -s SCHEMA_NAME $APDB_URL ApdbSql_1.0.0
