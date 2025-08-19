@@ -56,7 +56,7 @@ def upgrade() -> None:
                 partitions.sort()
                 obj_id_partitions.append((obj_id, partitions[-1][1]))
                 del partitions[-1]
-                for _, part in partitions[-1]:
+                for _, part in partitions:
                     to_drop.append((part, obj_id))
             else:
                 obj_id_partitions.append((obj_id, partitions[0][1]))

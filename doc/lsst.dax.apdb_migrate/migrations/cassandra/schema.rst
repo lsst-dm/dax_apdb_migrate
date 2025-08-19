@@ -88,7 +88,11 @@ Details of changes to the schema can be seen on `DM-50837 <https://rubinobs.atla
 The column ``DiaSource.bboxSize`` changed type from ``long`` to ``int`` in ``sdm_schemas``, but because Cassandra does not support changed to column types, its type will remain unchanged after migration.
 
 No additional parameters or packages are needed for this script.
-Migration to ``ApdbSql_1.0.0`` should be performed after migration to ``schema_8.0.0``.
+
+Dependencies:
+
+- Migration to ``schema_8.0.0`` has to be performed after ``ApdbCassandra_0.1.1``.
+- Migration to ``ApdbCassandra_1.0.0`` should be performed after migration to ``schema_8.0.0``.
 
 An example of migration::
 
