@@ -241,3 +241,34 @@ class Context:
             New version string.
         """
         self.metadata.insert(f"version:{tree}", version)
+
+    def require_version(self, revision_str: str, exact: bool = False) -> None:
+        """Check that existing version of some tree satisfies requirement.
+
+        Parameters
+        ----------
+        revision_str : `str`
+            Revision string in format "<tree>_<version>", e.g. "schema_1.2.3".
+        exact : `bool`
+            If True require exact match, othervise current version should be
+            greater or equal the one in ``revision``.
+        """
+        tree, version_req_str = revision.unpack_revision(revision_str)
+        if tree is None or version_req_str is None:
+            raise ValueError(f"Failed to parse revision string '{revision_str}'")
+        version_req = tuple(int(v) for v in version_req_str.split("."))
+
+        version_str = self.metadata.get(f"version:{tree}")
+        if version_str is None:
+            raise LookupError(f"Cannot find 'version:{tree}' in metadata.")
+        version = tuple(int(v) for v in version_str.split("."))
+        if exact and version != version_req:
+            raise ValueError(
+                f"Existing version for {tree} ({version_str}) "
+                f"does not match requested version ({version_req_str})"
+            )
+        if not exact and version < version_req:
+            raise ValueError(
+                f"Existing version for {tree} ({version_str}) "
+                f"is older than requested version ({version_req_str})"
+            )

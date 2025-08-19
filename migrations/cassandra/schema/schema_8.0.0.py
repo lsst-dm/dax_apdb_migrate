@@ -262,6 +262,15 @@ def upgrade() -> None:
       - Few columns added to DiaObject and DiaSource tables.
     """
     with Context(revision) as ctx:
+        # ApdbCassandra_0.1.1 depends on a column which is renamed here, check
+        # that that migration is already done.
+        try:
+            ctx.require_version("ApdbCassandra_0.1.1")
+        except ValueError as exc:
+            raise ValueError(
+                "ApdbCassandra version needs to be upgraded to 0.1.1 before this migration can be applied"
+            ) from exc
+
         for table_name in _tables_to_migrate:
             tables = ctx.schema.tables_for_schema(table_name)
             if not tables:
