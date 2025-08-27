@@ -265,7 +265,7 @@ def upgrade() -> None:
         # ApdbCassandra_0.1.1 depends on a column which is renamed here, check
         # that that migration is already done.
         try:
-            ctx.require_version("ApdbCassandra_0.1.1")
+            ctx.require_revision("ApdbCassandra_0.1.1")
         except ValueError as exc:
             raise ValueError(
                 "ApdbCassandra version needs to be upgraded to 0.1.1 before this migration can be applied"
