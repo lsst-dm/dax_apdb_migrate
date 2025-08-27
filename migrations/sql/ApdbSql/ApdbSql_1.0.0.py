@@ -23,21 +23,17 @@ def upgrade() -> None:
 
     Summary of changes:
 
-        - Only version is changed, but this migration depends on`schema_8.0.0`
-          and here we check that `schema` is at that version.
+        - Only the version is changed, but this migration depends on
+          `schema_8.0.0` and here we check that `schema` is at that version.
 
     Note that it may be possible to use `depends_on` for this purpose, but
     creates a confusing migration tree, see alembic docs for details.
     """
     with Context(revision) as ctx:
-        schema_version = ctx.apdb_meta.get("version:schema")
-        if schema_version is None:
-            raise LookupError("Cannot find 'version:schema' in metadata.")
-        major_version = int(schema_version.split(".")[0])
-        if major_version < 8:
-            raise ValueError(
-                f"Schema version needs to be upgraded to 8.0.0, current version: {schema_version}"
-            )
+        try:
+            ctx.require_revision("schema_8.0.0")
+        except ValueError as exc:
+            raise ValueError("Schema version needs to be upgraded to 8.0.0") from exc
 
 
 def downgrade() -> None:
