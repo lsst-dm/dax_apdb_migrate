@@ -24,7 +24,8 @@ keywords = ["lsst"]
 dependencies = [
     "sqlalchemy",
     "alembic",
-    "lsst-utils"
+    "lsst-utils",
+    "astropy",
 ]
 dynamic = ["version"]
 

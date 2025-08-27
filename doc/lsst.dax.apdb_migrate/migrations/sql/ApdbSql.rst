@@ -45,3 +45,20 @@ This migration has to be applied after migration to ``schema_8.0.0``, it will fa
 An example command for applying the schema upgrade::
 
     $ apdb-migrate-sql upgrade -s SCHEMA_NAME $APDB_URL ApdbSql_1.0.0
+
+Upgrade from 1.0.0 to 1.1.0
+===========================
+
+Migration script: `ApdbSql_1.1.0.py <https://github.com/lsst-dm/dax_apdb_migrate/blob/main/migrations/sql/ApdbSql/ApdbSql_1.1.0.py>`_
+
+``ApdbSql`` code was updated to use MJD TAI values for timestamp columns, and it is compatible with the schema that uses native timestamp types.
+The actual change to the schema is performed by migration to ``schema_9.0.0``.
+This migration only changes version of ``ApdbSql`` tree in the metadata.
+
+Dependencies:
+
+- This migration requires revision ``schema_9.0.0`` in the database.
+
+An example command for applying the schema upgrade::
+
+    $ apdb-migrate-sql upgrade -s SCHEMA_NAME $APDB_URL ApdbSql_1.1.0

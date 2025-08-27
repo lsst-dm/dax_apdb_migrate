@@ -242,8 +242,8 @@ class Context:
         """
         self.metadata.insert(f"version:{tree}", version)
 
-    def require_version(self, revision_str: str, exact: bool = False) -> None:
-        """Check that existing version of some tree satisfies requirement.
+    def require_revision(self, revision_str: str, exact: bool = False) -> None:
+        """Check that existing revision of some tree satisfies requirement.
 
         Parameters
         ----------

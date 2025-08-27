@@ -31,7 +31,7 @@ def upgrade() -> None:
     """
     with Context(revision) as ctx:
         try:
-            ctx.require_version("schema_8.0.0")
+            ctx.require_revision("schema_8.0.0")
         except ValueError as exc:
             raise ValueError("Schema version needs to be upgraded to 8.0.0") from exc
 
