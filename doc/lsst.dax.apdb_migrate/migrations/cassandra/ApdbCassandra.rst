@@ -52,3 +52,25 @@ This migration has to be applied after migration to ``schema_8.0.0``, it will fa
 An example command for applying the schema upgrade::
 
     $ apdb-migrate-cassandra upgrade <host> <keyspace> ApdbCassandra_1.0.0
+
+
+Upgrade from 1.0.0 to 1.1.0
+===========================
+
+Migration script: `ApdbCassandra_1.1.0.py <https://github.com/lsst-dm/dax_apdb_migrate/blob/main/migrations/cassandra/ApdbCassandra/ApdbCassandra_1.1.0.py>`_
+
+``ApdbCassandra`` code was updated to use MJD TAI values for timestamp columns, and it is compatible with the schema that uses native timestamp types.
+MJD TAI timestamp columns were introduced with ``schema_9.0.0``.
+This migration only changes version of ``ApdCassandra`` tree in the metadata.
+
+Dependencies:
+
+- This migration requires revision ``schema_9.0.0`` in the database.
+
+An example command for applying the schema upgrade::
+
+    $ apdb-migrate-cassandra upgrade <host> <keyspace> ApdbCassandra_1.1.0
+
+.. note::
+    Cassandra database cannot be migrated to schema 9.0.0 from earlier versions.
+    The only way to use schema 9.0.0 with Cassandra is to create an empty database with that schema version, and should also produce ApdbCassandra 1.1.0 or later.

@@ -81,7 +81,7 @@ An example of migration::
 Upgrade from 7.0.1 to 8.0.0
 ===========================
 
-Migration script: `schema_8.0.0.py <https://github.com/lsst-dm/dax_apdb_migrate/blob/main/migrations/sql/schema/schema_8.0.0.py>`_
+Migration script: `schema_8.0.0.py <https://github.com/lsst-dm/dax_apdb_migrate/blob/main/migrations/cassandra/schema/schema_8.0.0.py>`_
 
 Version 8.0.0 drops multiple columns from DiaSource and DiaObject tables, adding or renaming a small number of columns.
 Details of changes to the schema can be seen on `DM-50837 <https://rubinobs.atlassian.net/browse/DM-50837>`_.
@@ -97,3 +97,16 @@ Dependencies:
 An example of migration::
 
     $ apdb-migrate-cassandra upgrade <host> <keyspace> schema_8.0.0
+
+Upgrade from 8.0.0 to 9.0.0
+===========================
+
+Migration script: `schema_9.0.0.py <https://github.com/lsst-dm/dax_apdb_migrate/blob/main/migrations/cassandra/schema/schema_9.0.0.py>`_
+
+Version 9.0.0 replaces native timestamp columns with MJD TAI (double precisiton).
+Columns are also renamed to have "MjdTai" suffix.
+
+.. note::
+    This migration exist as a placeholder, but it is not implemented.
+    Implementing it would require a lot of work and using external tools (dsbulk), and it would be very slow for reasonably-sized data.
+    The only way to use schema 9.0.0 with Cassandra is to create an empty database with that schema version.

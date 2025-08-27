@@ -165,3 +165,17 @@ Migration to ``ApdbSql_1.0.0`` should be performed after migration to ``schema_8
 An example of migration::
 
     $ apdb-migrate-sql upgrade -s SCHEMA_NAME $APDB_URL schema_8.0.0
+
+Upgrade from 8.0.0 to 9.0.0
+===========================
+
+Migration script: `schema_9.0.0.py <https://github.com/lsst-dm/dax_apdb_migrate/blob/main/migrations/sql/schema/schema_9.0.0.py>`_
+
+Version 9.0.0 replaces native timestamp columns with MJD TAI (double precisiton).
+Columns are also renamed to have "MjdTai" suffix.
+No additional parameters or packages are needed for this script.
+Migration to ``ApdbSql_1.1.0`` should be performed together and after migration to ``schema_9.0.0``.
+
+An example of migration::
+
+    $ apdb-migrate-sql upgrade -s SCHEMA_NAME $APDB_URL schema_9.0.0
