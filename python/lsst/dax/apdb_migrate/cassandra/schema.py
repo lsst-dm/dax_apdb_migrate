@@ -101,7 +101,7 @@ class Schema:
         check_tables = []
         check_partitions = False
         if schema_kind in ("DiaObject", "DiaSource", "DiaForcedSource"):
-            if has_replicas:
+            if has_replicas and include_replica:
                 check_tables += [f"{schema_kind}Chunks", f"{schema_kind}Chunks2"]
             if has_partitioned_tables:
                 check_partitions = True

@@ -212,7 +212,7 @@ def _populate(
     ]
 
     # Create a temporary table which includes PK columns from original table
-    # a new column that we are going to poulate.
+    # a new column that we are going to populate.
     tmp_columns = pk_column_defs + [
         sqlalchemy.schema.Column(column.new_name, column_type) for column in columns
     ]
