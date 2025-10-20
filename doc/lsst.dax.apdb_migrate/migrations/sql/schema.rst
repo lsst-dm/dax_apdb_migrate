@@ -179,3 +179,19 @@ Migration to ``ApdbSql_1.1.0`` should be performed together and after migration 
 An example of migration::
 
     $ apdb-migrate-sql upgrade -s SCHEMA_NAME $APDB_URL schema_9.0.0
+
+Upgrade from 9.0.0 to 9.1.0
+===========================
+
+Migration script: `schema_9.1.0.py <https://github.com/lsst-dm/dax_apdb_migrate/blob/main/migrations/sql/schema/schema_9.1.0.py>`_
+
+Version 9.1.0 adds ``validityEndMjdTai`` column to ``DiaObjectLast`` table.
+The migration populates new column from the contents of ``DiaObject`` table.
+
+Dependencies:
+
+- Migration to ``ApdbSql_1.2.0`` should be performed after migration to ``schema_9.1.0``.
+
+An example of migration::
+
+    $ apdb-migrate-sql upgrade -s SCHEMA_NAME $APDB_URL schema_9.1.0

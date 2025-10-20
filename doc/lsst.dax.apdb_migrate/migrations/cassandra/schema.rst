@@ -110,3 +110,19 @@ Columns are also renamed to have "MjdTai" suffix.
     This migration exist as a placeholder, but it is not implemented.
     Implementing it would require a lot of work and using external tools (dsbulk), and it would be very slow for reasonably-sized data.
     The only way to use schema 9.0.0 with Cassandra is to create an empty database with that schema version.
+
+Upgrade from 9.0.0 to 9.1.0
+===========================
+
+Migration script: `schema_9.1.0.py <https://github.com/lsst-dm/dax_apdb_migrate/blob/main/migrations/cassandra/schema/schema_9.1.0.py>`_
+
+Version 9.1.0 adds ``validityEndMjdTai`` column to ``DiaObjectLast`` table.
+The migration populates new column from the contents of ``DiaObject`` table.
+
+Dependencies:
+
+- Migration to ``ApdbCassandra_1.2.0`` should be performed after migration to ``schema_9.1.0``.
+
+An example of migration::
+
+    $ apdb-migrate-cassandra upgrade <host> <keyspace> schema_9.1.0

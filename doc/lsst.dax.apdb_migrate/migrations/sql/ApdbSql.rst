@@ -62,3 +62,21 @@ Dependencies:
 An example command for applying the schema upgrade::
 
     $ apdb-migrate-sql upgrade -s SCHEMA_NAME $APDB_URL ApdbSql_1.1.0
+
+Upgrade from 1.1.0 to 1.2.0
+===========================
+
+Migration script: `ApdbSql_1.2.0.py <https://github.com/lsst-dm/dax_apdb_migrate/blob/main/migrations/sql/ApdbSql/ApdbSql_1.2.0.py>`_
+
+``ApdbSql`` code was updated to support filling of the ``DiaObjectLast.validityStartMjdTai`` column.
+The code is compatible with the previous revision of schema which lacks that column.
+The actual change to the schema is performed by migration to ``schema_9.1.0``.
+This migration only changes version of ``ApdbSql`` tree in the metadata.
+
+Dependencies:
+
+- This migration requires revision ``schema_9.1.0`` in the database.
+
+An example command for applying the schema upgrade::
+
+    $ apdb-migrate-sql upgrade -s SCHEMA_NAME $APDB_URL ApdbSql_1.2.0

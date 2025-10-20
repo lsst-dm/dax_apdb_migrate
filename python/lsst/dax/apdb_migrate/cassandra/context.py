@@ -48,7 +48,7 @@ class DryRunSession:
     executing them.
     """
 
-    def execute(self, query: Any, parameters: Any) -> Any:
+    def execute(self, query: Any, parameters: Any | None = None, timeout: Any = object()) -> Any:
         _LOG.info("Query: '%s', parameters: %s", query, parameters)
 
     def prepare(self, query: str) -> Any:
@@ -179,7 +179,11 @@ class Context:
         return self.db.keyspace
 
     def query(
-        self, query: str | cassandra.query.Statement, parameters: Sequence | Mapping | None = None
+        self,
+        query: str | cassandra.query.Statement,
+        parameters: Sequence | Mapping | None = None,
+        *,
+        timeout: Any | None = None,
     ) -> Any:
         """Run a query against Cassandra backend, should only be used to
         execute SELECT queries.
@@ -194,7 +198,10 @@ class Context:
         """
         self._check_context()
         assert self._query_session is not None
-        return self._query_session.execute(query, parameters)
+        if timeout is None:
+            return self._query_session.execute(query, parameters)
+        else:
+            return self._query_session.execute(query, parameters, timeout=timeout)
 
     def update(
         self, query: str | cassandra.query.Statement, parameters: Sequence | Mapping | None = None
