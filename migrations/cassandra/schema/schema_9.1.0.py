@@ -37,9 +37,10 @@ def upgrade() -> None:
     with Context(revision) as ctx:
         # Get the list of source tables.
         tables = ctx.schema.tables_for_schema("DiaObject", include_replica=False, include_obj_last=False)
-        tables = [table for table in tables if table.startswith("DiaObject_")]
+        if tables != ["DiaObject"]:
+            tables = [table for table in tables if table.startswith("DiaObject_")]
         if not tables:
-            raise LookupError("Table DiaSource does not exist in this database.")
+            raise LookupError("Table DiaObject does not exist in this database.")
 
         # Get existing diaObjectIds in DiaObjectLast table.
         last_dia_object_ids = _get_last_dia_object_ids(ctx)
