@@ -106,3 +106,23 @@ This migration deletes existing ``SSObject`` table from database.
 An example command for applying the schema upgrade::
 
     $ apdb-migrate-cassandra upgrade <host> <keyspace> ApdbCassandra_1.2.1
+
+
+Upgrade from 1.2.1 to 1.3.0
+===========================
+
+Migration script: `ApdbCassandra_1.3.0.py <https://github.com/lsst-dm/dax_apdb_migrate/blob/main/migrations/cassandra/ApdbCassandra/ApdbCassandra_1.3.0.py>`_
+
+``ApdbCassandra`` code was updated to create and fill ``DiaObjectDedup`` table that will be used for DIAObject deduplication.
+The code is compatible with the previous revision of schema which does not have that table.
+
+The script requires two additional parameters:
+
+- ``data-source``, which specifies which table to use to fill ``DiaObjectDedup`` table.
+  It can be one of ``DiaObject``, ``DiaObjectLast``, or ``none``, latter avoids filling the table.
+- ``num-partitions``, which specifies the number of partitions for ``DiaObjectDedup`` table.
+  A reasonable value for production cluster could be 100.
+
+An example command for applying the schema upgrade::
+
+    $ apdb-migrate-cassandra upgrade --options data-source=DiaObject --options num-partitions=100 <host> <keyspace> ApdbCassandra_1.3.0
