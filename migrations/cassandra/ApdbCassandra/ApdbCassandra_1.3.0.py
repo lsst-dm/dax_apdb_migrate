@@ -1,8 +1,8 @@
 """Migration script for ApdbCassandra 1.3.0.
 
 Revision ID: ApdbCassandra_1.3.0
-Revises: ApdbCassandra_1.2.0
-Create Date: 2025-10-13 16:01:11.609198
+Revises: ApdbCassandra_1.2.1
+Create Date: 2025-11-24 16:01:11.609198
 """
 
 import logging
@@ -14,7 +14,7 @@ from lsst.utils.iteration import chunk_iterable
 
 # revision identifiers, used by Alembic.
 revision = "ApdbCassandra_1.3.0"
-down_revision = "ApdbCassandra_1.2.0"
+down_revision = "ApdbCassandra_1.2.1"
 branch_labels = None
 depends_on = None
 
