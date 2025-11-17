@@ -30,11 +30,12 @@ CREATE TABLE "{keyspace}"."{table_name}" (
   ra double,
   dec double,
   "nDiaSources" int,
+  "firstDiaSourceMjdTai" double,
   PRIMARY KEY (dedup_part, "diaObjectId", "validityStartMjdTai")
 )
 """
 
-_COLUMNS = ("diaObjectId", "validityStartMjdTai", "ra", "dec", "nDiaSources")
+_COLUMNS = ("diaObjectId", "validityStartMjdTai", "ra", "dec", "nDiaSources", "firstDiaSourceMjdTai")
 
 
 def upgrade() -> None:
