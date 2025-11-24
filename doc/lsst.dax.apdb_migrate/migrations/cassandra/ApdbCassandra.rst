@@ -93,3 +93,16 @@ Dependencies:
 An example command for applying the schema upgrade::
 
     $ apdb-migrate-cassandra upgrade <host> <keyspace> ApdbCassandra_1.2.0
+
+
+Upgrade from 1.2.0 to 1.2.1
+===========================
+
+Migration script: `ApdbCassandra_1.2.1.py <https://github.com/lsst-dm/dax_apdb_migrate/blob/main/migrations/cassandra/ApdbCassandra/ApdbCassandra_1.2.1.py>`_
+
+``ApdbCassandra`` code was updated to not create ``SSObject`` table.
+This migration deletes existing ``SSObject`` table from database.
+
+An example command for applying the schema upgrade::
+
+    $ apdb-migrate-cassandra upgrade <host> <keyspace> ApdbCassandra_1.2.1

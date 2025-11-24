@@ -80,3 +80,16 @@ Dependencies:
 An example command for applying the schema upgrade::
 
     $ apdb-migrate-sql upgrade -s SCHEMA_NAME $APDB_URL ApdbSql_1.2.0
+
+
+Upgrade from 1.2.0 to 1.2.1
+===========================
+
+Migration script: `ApdbSql_1.2.1.py <https://github.com/lsst-dm/dax_apdb_migrate/blob/main/migrations/sql/ApdbSql/ApdbSql_1.2.1.py>`_
+
+``ApdbSql`` code was updated to not create ``SSObject`` table.
+This migration deletes existing ``SSObject`` table from database.
+
+An example command for applying the schema upgrade::
+
+    $ apdb-migrate-sql upgrade -s SCHEMA_NAME $APDB_URL ApdbSql_1.2.1
