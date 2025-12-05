@@ -126,3 +126,15 @@ Dependencies:
 An example of migration::
 
     $ apdb-migrate-cassandra upgrade <host> <keyspace> schema_9.1.0
+
+Upgrade from 9.1.0 to 9.1.1
+===========================
+
+Migration script: `schema_9.1.1.py <https://github.com/lsst-dm/dax_apdb_migrate/blob/main/migrations/cassandra/schema/schema_9.1.1.py>`_
+
+Version 9.1.1 changes some integer columns in ``DiaObject`` and ``DiaSource `` tables to be ``NOT NULL``.
+Cassandra does not have ``NOT NULL`` constrints, so the schema does not change, but migration script fills ``NULL`` values in those columns with ``0``.
+
+An example of migration::
+
+    $ apdb-migrate-cassandra upgrade <host> <keyspace> schema_9.1.1

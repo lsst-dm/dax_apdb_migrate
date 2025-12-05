@@ -103,8 +103,16 @@ extend-select = [
    "RUF100", # Warn about unused noqa
 ]
 
+[tool.ruff.lint.isort]
+known-first-party = ["lsst"]
+
 [tool.ruff.lint.pycodestyle]
 max-doc-length = 79
 
 [tool.ruff.lint.pydocstyle]
 convention = "numpy"
+
+[tool.ruff.format]
+docstring-code-format = true
+# Formatter does not know about indenting.
+docstring-code-line-length = 69

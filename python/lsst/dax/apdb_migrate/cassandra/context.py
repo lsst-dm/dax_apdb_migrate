@@ -25,7 +25,7 @@ __all__ = ("Context",)
 
 import json
 import logging
-from collections.abc import Mapping, Sequence
+from collections.abc import Iterable, Mapping, Sequence
 from contextlib import ExitStack
 from typing import TYPE_CHECKING, Any, Literal
 
@@ -40,6 +40,8 @@ if TYPE_CHECKING:
     import cassandra.query
     from cassandra.cluster import Session
 
+_NOT_SET = object()
+
 _LOG = logging.getLogger(__name__)
 
 
@@ -48,11 +50,14 @@ class DryRunSession:
     executing them.
     """
 
+    def __init__(self, session_for_prepare: Session):
+        self.session_for_prepare = session_for_prepare
+
     def execute(self, query: Any, parameters: Any | None = None, timeout: Any = object()) -> Any:
         _LOG.info("Query: '%s', parameters: %s", query, parameters)
 
     def prepare(self, query: str) -> Any:
-        raise NotImplementedError()
+        return self.session_for_prepare.prepare(query)
 
 
 class Context:
@@ -112,7 +117,7 @@ class Context:
         self._update_session = session
         if self.dry_run:
             # Use query-printing session instead of a real one.
-            self._update_session = DryRunSession()
+            self._update_session = DryRunSession(session)
         else:
             self._update_session = session
         return self
@@ -178,12 +183,42 @@ class Context:
         """Keyspace name (`str`)"""
         return self.db.keyspace
 
+    def qoute_id(self, id_name: str) -> str:
+        """Return properly quoted ID, right now all IDs are quoted.
+
+        Parameters
+        ----------
+        id_name : `str`
+            ID string.
+
+        Returns
+        -------
+        quoted_id : `str`
+            Quoted ID string.
+        """
+        return f'"{id_name}"'
+
+    def qoute_ids(self, id_names: Iterable[str]) -> list[str]:
+        """Return properly quoted IDs, right now all IDs are quoted.
+
+        Parameters
+        ----------
+        id_names : `~collections.abc.Iterable` [`str`]
+            ID strings.
+
+        Returns
+        -------
+        quoted_ids : `list` [`str`]
+            Quoted ID strings.
+        """
+        return [f'"{id_name}"' for id_name in id_names]
+
     def query(
         self,
         query: str | cassandra.query.Statement,
         parameters: Sequence | Mapping | None = None,
         *,
-        timeout: Any | None = None,
+        timeout: Any | None = _NOT_SET,
     ) -> Any:
         """Run a query against Cassandra backend, should only be used to
         execute SELECT queries.
@@ -195,10 +230,13 @@ class Context:
             SELECT queries are allowed here.
         parameters : `~collections.abc.Sequence` or `~collections.abc.Mapping`
             Query parameters.
+        timeout : `float` or `None`, optional
+            Timeout in seconds or `None` for no timeout. If not specified then
+            default timeout is used.
         """
         self._check_context()
         assert self._query_session is not None
-        if timeout is None:
+        if timeout is _NOT_SET:
             return self._query_session.execute(query, parameters)
         else:
             return self._query_session.execute(query, parameters, timeout=timeout)

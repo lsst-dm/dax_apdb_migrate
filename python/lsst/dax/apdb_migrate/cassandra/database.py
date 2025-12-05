@@ -86,7 +86,6 @@ class Database:
         """
         versions = {}
         with self.make_session() as session:
-
             meta = ApdbMetadata(session, self._keyspace)
             for name, value in meta.items():
                 if name.startswith("version:") and value is not None:
@@ -123,7 +122,6 @@ class Database:
             del session
 
         finally:
-
             cluster.shutdown()
             del cluster
 
