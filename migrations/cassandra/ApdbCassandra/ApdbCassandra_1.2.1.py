@@ -38,7 +38,6 @@ def downgrade() -> None:
     with Context(down_revision) as ctx:
         _LOG.info("Creating table SSObject")
         query = (
-            f'CREATE TABLE "{ctx.keyspace}"."SSObject" '
-            "(dummy_migration int, PRIMARY KEY (dummy_migration))"
+            f'CREATE TABLE "{ctx.keyspace}"."SSObject" (dummy_migration int, PRIMARY KEY (dummy_migration))'
         )
         ctx.update(query)
