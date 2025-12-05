@@ -72,6 +72,23 @@ class Schema:
         result = self._session.execute(query, (self._keyspace,))
         return [row[0] for row in result.all()]
 
+    def check_table(self, table_name: str) -> bool:
+        """Check whether a table exists.
+
+        Parameters
+        ----------
+        table_name : `str`
+            Name of the table to check.
+
+        Returns
+        -------
+        exists : `bool`
+            True returned if table exists.
+        """
+        query = "SELECT table_name FROM system_schema.tables WHERE keyspace_name = %s AND table_name = %s"
+        result = self._session.execute(query, (self._keyspace, table_name))
+        return result.one() is not None
+
     def tables_for_schema(
         self, schema_kind: str, *, include_replica: bool = True, include_obj_last: bool = False
     ) -> list[str]:
@@ -119,3 +136,52 @@ class Schema:
                     result.append(table)
 
         return result
+
+    def partitioned_tables(self, table_name: str) -> list[str]:
+        """Return list of partitioned tables for given table name.
+
+        Parameters
+        ----------
+        table_name : `str`
+            Table name, one of "DiaObject", "DiaSource", "DiaForcedSorce".
+
+        Returns
+        -------
+        names : `list` [`str`]
+            Names of the tables, empty list is returned if table partitioning
+            is not supported in this instance.
+        """
+        if not self._has_partitioned_tables:
+            return []
+
+        all_tables = set(self.all_tables())
+        result = []
+        for table in all_tables:
+            kind, _, part = table.partition("_")
+            if kind == table_name and part.isdigit():
+                result.append(table)
+
+        return result
+
+    def replica_tables(self, table_name: str) -> list[str]:
+        """Return list of replica tables for given table name.
+
+        Parameters
+        ----------
+        table_name : `str`
+            Table name, one of "DiaObject", "DiaSource", "DiaForcedSorce".
+
+        Returns
+        -------
+        names : `list` [`str`]
+            Names of the tables, empty list is returned if replication is not
+            supported in this instance. Usually the list has one table, but
+            it may also have two tbales for some instances, e.g.
+            "DiaObjectChunks" and "DiaObjectChunks2".
+        """
+        if not self._has_replicas:
+            return []
+
+        all_tables = set(self.all_tables())
+        check_tables = [f"{table_name}Chunks", f"{table_name}Chunks2"]
+        return [table for table in check_tables if table in all_tables]
