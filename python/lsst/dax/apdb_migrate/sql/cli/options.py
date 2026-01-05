@@ -51,3 +51,7 @@ schema = click.option("-s", "--schema", help="Database schema name.", default=No
 dump_sql = click.option(
     "--sql", help="Offline mode, dump SQL instead of executing migration on a database.", is_flag=True
 )
+
+no_metadata = click.option(
+    "--no-metadata", help="Allow for missing metadata table (pre-0.1.1 setup).", is_flag=True
+)

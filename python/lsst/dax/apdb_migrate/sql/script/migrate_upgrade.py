@@ -34,7 +34,13 @@ _LOG = logging.getLogger(__name__)
 
 
 def migrate_upgrade(
-    db_url: str, schema: str | None, revision: str, mig_path: str, sql: bool, options: dict[str, str] | None
+    db_url: str,
+    schema: str | None,
+    revision: str,
+    mig_path: str,
+    sql: bool,
+    no_metadata: bool,
+    options: dict[str, str] | None,
 ) -> None:
     """Upgrade schema to a specified revision.
 
@@ -50,10 +56,12 @@ def migrate_upgrade(
         Filesystem path to location of revisions.
     sql : `bool`
         If True dump SQL instead of executing migration on a database.
+    no_metadata : `bool`
+        If True then allow for missing metadata table (pre-0.1.1 setup).
     options : `dict` or `None`
         Additional key:value options specified on command line
     """
-    db = database.Database(db_url, schema)
+    db = database.Database(db_url, schema, no_metadata)
 
     # Check that alembic versions exist in database, we do not support
     # migrations from empty state.
@@ -66,6 +74,13 @@ def migrate_upgrade(
 
     # check that alembic versions are consistent with butler
     script_info = ScriptDirectory.from_config(cfg)
-    db.validate_revisions(script_info.get_bases())
+    try:
+        db.validate_revisions(script_info.get_bases())
+    except database.MissingMetadataError as exc:
+        exc.add_note(
+            "Check schema name or use --no-metadata option in case this is a pre-historic APDB "
+            "instance that is missing metadata table."
+        )
+        raise
 
     command.upgrade(cfg, revision, sql=sql)

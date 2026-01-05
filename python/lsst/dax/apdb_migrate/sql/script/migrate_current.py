@@ -33,7 +33,9 @@ from .. import config, database
 _LOG = logging.getLogger(__name__)
 
 
-def migrate_current(db_url: str, schema: str | None, mig_path: str, verbose: bool, metadata: bool) -> None:
+def migrate_current(
+    db_url: str, schema: str | None, mig_path: str, verbose: bool, metadata: bool, no_metadata: bool
+) -> None:
     """Display current revisions for a database.
 
     Parameters
@@ -49,15 +51,24 @@ def migrate_current(db_url: str, schema: str | None, mig_path: str, verbose: boo
     metadata: `bool`
         If True then print versions numbers from metadata, otherwise display
         information about alembic revisions.
+    no_metadata : `bool`
+        If True then allow for missing metadata table (pre-0.1.1 setup).
     """
-    db = database.Database(db_url, schema)
+    db = database.Database(db_url, schema, no_metadata)
 
     cfg = config.ApdbMigConfigSql.from_mig_path(mig_path, db=db)
     if metadata:
         # Print current versions defined in butler.
         script_info = ScriptDirectory.from_config(cfg)
         heads = script_info.get_heads()
-        tree_versions = db.tree_versions()
+        try:
+            tree_versions = db.tree_versions()
+        except database.MissingMetadataError as exc:
+            exc.add_note(
+                "Check schema name or use --no-metadata option in case this is a pre-historic APDB "
+                "instance that is missing metadata table."
+            )
+            raise
         if tree_versions:
             for tree, (version, rev_id) in sorted(tree_versions.items()):
                 head = " (head)" if rev_id in heads else ""

@@ -35,7 +35,13 @@ _LOG = logging.getLogger(__name__)
 
 
 def migrate_stamp(
-    db_url: str, schema: str | None, mig_path: str, purge: bool, dry_run: bool, tree_name: str | None
+    db_url: str,
+    schema: str | None,
+    mig_path: str,
+    purge: bool,
+    dry_run: bool,
+    no_metadata: bool,
+    tree_name: str | None,
 ) -> None:
     """Stamp alembic revision table with current metadata versions.
 
@@ -51,12 +57,21 @@ def migrate_stamp(
         Delete all entries in the version table before stamping.
     dry_run : `bool`
         Skip all updates.
+    no_metadata : `bool`
+        If True then allow for missing metadata table (pre-0.1.1 setup).
     tree_name: `str`, Optional
         Name of the tree to stamp, if `None` then all managers are stamped.
     """
-    db = database.Database(db_url, schema)
+    db = database.Database(db_url, schema, no_metadata)
 
-    tree_versions = db.tree_versions()
+    try:
+        tree_versions = db.tree_versions()
+    except database.MissingMetadataError as exc:
+        exc.add_note(
+            "Check schema name or use --no-metadata option in case this is a pre-historic APDB "
+            "instance that is missing metadata table."
+        )
+        raise
     if not tree_versions:
         # Means that metadata table exists but is empty?
         raise ValueError("No versions defined in metadata table.")
