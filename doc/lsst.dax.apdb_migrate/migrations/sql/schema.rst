@@ -11,6 +11,9 @@ This migration creates ``metadata`` table to the schema which was added in versi
 It also populates metadata with version numbers for both ``schema`` and ``ApdbSql`` trees (usually migrations only update their own tree version).
 The ``ApdbSql`` schema version stored in ``metadata`` will be ``0.1.0`` by default, but it can be changed via the command line option.
 
+Schema version ``0.1.0`` corresponds to a number of different schemas that all existed before versioning was implemented for APDB.
+The code tries to guess all necessary changes to bring all those schemas into a state corresponding to ``0.1.1`` version.
+
 An example of specifying different version number for ApdbSql::
 
     $ apdb-migrate-sql upgrade --options apdb_sql_version=0.2.0 -s SCHEMA_NAME $APDB_URL schema_0.1.1

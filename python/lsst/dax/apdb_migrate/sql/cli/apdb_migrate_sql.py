@@ -78,6 +78,7 @@ def add_revision(*args: Any, **kwargs: Any) -> None:
     ),
     is_flag=True,
 )
+@options.no_metadata
 @options.mig_path_exist
 @options.schema
 @click.argument("db-url")
@@ -115,6 +116,7 @@ def show_trees(*args: Any, **kwargs: Any) -> None:
 @options.stamp_purge
 @common_options.dry_run
 @options.schema
+@options.no_metadata
 @click.argument("db-url")
 @click.argument("tree-name", required=False)
 def stamp(*args: Any, **kwargs: Any) -> None:
@@ -133,6 +135,7 @@ def stamp(*args: Any, **kwargs: Any) -> None:
 @options.dump_sql
 @options.schema
 @common_options.options
+@options.no_metadata
 @click.argument("db-url")
 @click.argument("revision")
 def upgrade(*args: Any, **kwargs: Any) -> None:

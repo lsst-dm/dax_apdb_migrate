@@ -40,6 +40,10 @@ class RevisionConsistencyError(Exception):
     """
 
 
+class MissingMetadataError(Exception):
+    """Exception raised when metadata table is missing."""
+
+
 class Database:
     """Class implementing methods for database access needed for migrations.
 
@@ -49,14 +53,17 @@ class Database:
         Database URL.
     schema : `str`, optional
         Database schema/namespace.
+    no_metadata : `bool`
+        If True then allow for missing metadata table (pre-0.1.1 setup).
     """
 
     metadata_table_name = "metadata"
     """Name of the metadata table holding versions."""
 
-    def __init__(self, db_url: str, schema: str | None = None):
+    def __init__(self, db_url: str, schema: str | None = None, no_metadata: bool = False):
         self._db_url = sqlalchemy.engine.make_url(db_url)
         self._schema = schema
+        self._no_metadata = no_metadata
 
     @property
     def db_url(self) -> str:
@@ -88,25 +95,33 @@ class Database:
 
         versions: dict[str, str] = {}
 
-        # Read versions from metadata table.
-        meta = sqlalchemy.schema.MetaData(schema=self._schema)
-        table = sqlalchemy.schema.Table(
-            self.metadata_table_name,
-            meta,
-            sqlalchemy.schema.Column("name", sqlalchemy.Text),
-            sqlalchemy.schema.Column("value", sqlalchemy.Text),
-        )
+        inspector = sqlalchemy.inspect(engine)
+        has_metadata = inspector.has_table(self.metadata_table_name, schema=self._schema)
+        if not has_metadata:
+            if self._no_metadata:
+                versions = {"schema": "0.1.0", "ApdbSql": "0.1.0"}
+            else:
+                raise MissingMetadataError("metadata table is not found, please check schema name")
+        else:
+            # Read versions from metadata table.
+            meta = sqlalchemy.schema.MetaData(schema=self._schema)
+            table = sqlalchemy.schema.Table(
+                self.metadata_table_name,
+                meta,
+                sqlalchemy.schema.Column("name", sqlalchemy.Text),
+                sqlalchemy.schema.Column("value", sqlalchemy.Text),
+            )
 
-        # Parse table contents.
-        sql = sqlalchemy.sql.select(table.columns.name, table.columns.value)
-        with engine.connect() as connection:
-            try:
-                result = connection.execute(sql)
-            except sqlalchemy.exc.ProgrammingError as exc:
-                raise RuntimeError("metadata table may be missing, please check schema name") from exc
-            for name, value in result:
-                if name.startswith("version:"):
-                    versions[name.partition(":")[-1]] = value
+            # Parse table contents.
+            sql = sqlalchemy.sql.select(table.columns.name, table.columns.value)
+            with engine.connect() as connection:
+                try:
+                    result = connection.execute(sql)
+                except sqlalchemy.exc.ProgrammingError as exc:
+                    raise RuntimeError("metadata table may be missing, please check schema name") from exc
+                for name, value in result:
+                    if name.startswith("version:"):
+                        versions[name.partition(":")[-1]] = value
 
         revisions: dict[str, tuple[str, str]] = {}
         for tree, version in versions.items():
