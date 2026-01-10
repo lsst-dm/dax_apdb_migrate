@@ -23,6 +23,7 @@ from __future__ import annotations
 
 __all__ = ["ApdbMetadata"]
 
+import json
 from typing import Any, Protocol
 
 
@@ -116,3 +117,47 @@ class ApdbMetadata:
             New version string.
         """
         self.insert(f"version:{tree}", version)
+
+    def update_config(
+        self,
+        updates: dict[str, Any] | None = None,
+        *,
+        deletes: list[str] | None = None,
+        config_name: str = "apdb-cassandra.json",
+    ) -> None:
+        """Update configuration stored as JSON string in metadata.
+
+        Parameters
+        ----------
+        updates : `dict` [`str`, `Any`], optional
+            Key-value pairs to update configuration with. Existing key will be
+            overwritten.
+        deletes : `list` [`str`], optional
+            List of keys to remove from configuration. The keys may not exist
+            in the configuration.
+        config_name : `str`, optional
+            Name of the configuration record. The metadata key will be this
+            name prefixed with "config:". Corresponding key must already exist
+            in metadata.
+        """
+        config_key = f"config:{config_name}"
+
+        # Read existing config.
+        config_str = self.get(config_key)
+        if config_str is None:
+            raise LookupError(f"Key '{config_key}' does not exist in metadata.")
+        config_obj = json.loads(config_str)
+        assert isinstance(config_obj, dict), "All config keys must be dictionaries"
+
+        # Do all updates.
+        if updates:
+            config_obj.update(updates)
+
+        # Do all deletes.
+        if deletes:
+            for key in deletes:
+                config_obj.pop(key, None)
+
+        # Write it back.
+        config_str = json.dumps(config_obj)
+        self.insert(config_key, config_str)
