@@ -55,7 +55,7 @@ These commands are:
 - ``add-tree``
 - ``add-revision``
 
-Commands from other class work with database and require a database caonnection specified via a host name and a keyspace name:
+Commands from other class work with database and require a database connection specified via a host name and a keyspace name:
 
 - ``show-current``
 - ``upgrade``

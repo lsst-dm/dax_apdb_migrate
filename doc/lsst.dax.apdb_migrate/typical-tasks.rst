@@ -3,7 +3,7 @@
 Typical migration tasks
 #######################
 
-Ths page collects some examples of typical migration tasks with some explanation.
+This page collects some examples of typical migration tasks with some explanation.
 As ``dax_apdb_migrate`` is not a part of the regular releases it has to be checked out from Github::
 
     $ git clone git@github.com:lsst-dm/dax_apdb_migrate

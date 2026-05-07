@@ -92,7 +92,7 @@ This section describes details that are relevant for Alembic-based implementatio
 Alembic Revisions
 -----------------
 
-Revision names used by Alembic are constructed similarly to SQL casa contatenating a tree name and a version number, separated by underscore (e.g. ``schema_0.1.0``).
+Revision names used by Alembic are constructed similarly to SQL case concatenating a tree name and a version number, separated by underscore (e.g. ``schema_0.1.0``).
 Revision tree names used by Cassandra are:
 
 - ``schema`` - corresponds to the schema definition in ``sdm_schemas``,
@@ -100,7 +100,7 @@ Revision tree names used by Cassandra are:
 - ``ApdbCassandraReplica`` - corresponds to the version of the code in ``ApdbCassandraReplica`` class.
 
 Unlike SQL case, we do not record revision names in the database itself, instead we use version numbers stored in ``metadata`` table to generate Alembic revisions in a temporary SQLite database used by Alembic.
-In all other respects the management of the revisions and miration scripts looks very similar to SQL case.
+In all other respects the management of the revisions and migration scripts looks very similar to SQL case.
 
 Here is an example of revision history for schema tree (newest revisions at the top)::
 
