@@ -36,7 +36,7 @@ Cassandra Backend
 =================
 
 Cassandra migration scripts can use a special context manager instance for operations on database.
-A context manager is normally instanciated for the duration of the whole upgrade/downgrade method, e.g.::
+A context manager is normally instantiated for the duration of the whole upgrade/downgrade method, e.g.::
 
     from lsst.dax.apdb_migrate.cassandra.context import Context
 
@@ -45,7 +45,7 @@ A context manager is normally instanciated for the duration of the whole upgrade
             # Use `ctx` methods to run queries in database
             ...
 
-Most operations involve writing CQL qeries and executing them.
+Most operations involve writing CQL queries and executing them.
 An example of common operation would be adding a column to a table, which may look like this::
 
     with Context(final_revision) as ctx:
@@ -58,7 +58,7 @@ Few important points to remember:
 
 - Use ``ctx.query()`` method to execute ``SELECT`` queries and ``ctx.update()`` for queries that change anything.
 - Always remember to prefix table name with keyspace name like in example above.
-- Cassandra support for `schema changes <https://cassandra.apache.org/doc/latest/cassandra/developing/cql/ddl.html>`_ is extremly limited, some updates may not be possible or be very non-trivial.
+- Cassandra support for `schema changes <https://cassandra.apache.org/doc/latest/cassandra/developing/cql/ddl.html>`_ is extremely limited, some updates may not be possible or be very non-trivial.
 
 
 .. _batch migrations: https://alembic.sqlalchemy.org/en/latest/batch.html

@@ -115,7 +115,7 @@ To generate new scripts or query existing scripts, ``apdb-migrate-cassandra`` co
 Editing migration script
 ------------------------
 
-Cassandra migration scripts cannot use ``sqlalchemy`` or ``alembic`` packages for querying or updating databse schema.
+Cassandra migration scripts cannot use ``sqlalchemy`` or ``alembic`` packages for querying or updating database schema.
 Instead a simple interface is provided in the form of a context manager with a small set of methods.
 Context manager is also responsible for a transparent update of version numbers in the ``metadata`` table.
 
