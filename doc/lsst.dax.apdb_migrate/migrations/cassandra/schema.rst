@@ -138,3 +138,14 @@ Cassandra does not have ``NOT NULL`` constraints, so the schema does not change,
 An example of migration::
 
     $ apdb-migrate-cassandra upgrade <host> <keyspace> schema_9.1.1
+
+Upgrade from 9.1.1 to 10.0.0
+============================
+
+Migration script: `schema_10.0.0.py <https://github.com/lsst-dm/dax_apdb_migrate/blob/main/migrations/cassandra/schema/schema_10.0.0.py>`_
+
+Version 10.0.0 adds four new columns to ``DiaSource`` table -- ``exposureTime``, ``trailAlgorithm``, ``trail_flag``, and ``reliabilityVersion``.
+
+An example of migration::
+
+    $ apdb-migrate-cassandra upgrade <host> <keyspace> schema_10.0.0

@@ -116,3 +116,21 @@ convention = "numpy"
 docstring-code-format = true
 # Formatter does not know about indenting.
 docstring-code-line-length = 69
+
+[tool.numpydoc_validation]
+checks = [
+    "all",  # All except the rules listed below.
+    "SA01",  # See Also section.
+    "SA04",  # We don't use descriptions with See Also.
+    "EX01",  # Example section.
+    "SS06",  # Summary can go into second line.
+    "GL01",  # Summary text can start on same line as """
+    "GL08",  # Do not require docstring.
+    "ES01",  # No extended summary required.
+    "RT01",  # Unfortunately our @property trigger this.
+    "RT02",  # Does not want named return value. DM style says we do.
+    "SS05",  # pydocstyle is better at finding infinitive verb.
+    "RT03",  # Temporarily disable for sphinx empty returns.
+    "PR04",  # New Sphinx can infer types from python typing
+]
+exclude = []
