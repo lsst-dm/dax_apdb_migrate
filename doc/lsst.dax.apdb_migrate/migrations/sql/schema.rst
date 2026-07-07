@@ -210,3 +210,14 @@ The migration adds the constraint to those columns and also fills ``NULL`` value
 An example of migration::
 
     $ apdb-migrate-sql upgrade -s SCHEMA_NAME $APDB_URL schema_9.1.1
+
+Upgrade from 9.1.1 to 10.0.0
+============================
+
+Migration script: `schema_10.0.0.py <https://github.com/lsst-dm/dax_apdb_migrate/blob/main/migrations/sql/schema/schema_10.0.0.py>`_
+
+Version 10.0.0 adds four new columns to ``DiaSource`` table -- ``exposureTime``, ``trailAlgorithm``, ``trail_flag``, and ``reliabilityVersion``.
+
+An example of migration::
+
+    $ apdb-migrate-sql upgrade -s SCHEMA_NAME $APDB_URL schema_10.0.0
