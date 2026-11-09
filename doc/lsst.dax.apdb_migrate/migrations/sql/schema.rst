@@ -221,3 +221,14 @@ Version 10.0.0 adds four new columns to ``DiaSource`` table -- ``exposureTime``,
 An example of migration::
 
     $ apdb-migrate-sql upgrade -s SCHEMA_NAME $APDB_URL schema_10.0.0
+
+Upgrade from 10.0.0 to 11.0.0
+=============================
+
+Migration script: `schema_11.0.0.py <https://github.com/lsst-dm/dax_apdb_migrate/blob/main/migrations/sql/schema/schema_11.0.0.py>`_
+
+Version 11.0.0 adds seven new columns to ``DiaSource`` table.
+
+An example of migration::
+
+    $ apdb-migrate-sql upgrade -s SCHEMA_NAME $APDB_URL schema_11.0.0
