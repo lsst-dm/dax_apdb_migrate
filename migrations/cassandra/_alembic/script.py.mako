@@ -39,12 +39,14 @@ def upgrade() -> None:
       - <Add summary of changes>.
     """
     with Context(revision) as ctx:  # noqa: F841
-        # Add code to upgrade the schema using ctx.execute() method.
+        # Add code to downgrade the schema using ctx.update() method and
+        # ctx.query() for querying.
         raise NotImplementedError()
 
 
 def downgrade() -> None:
     """Undo changes applied in `upgrade`."""
     with Context(down_revision) as ctx:  # noqa: F841
-        # Add code to downgrade the schema using ctx.execute() method.
+        # Add code to downgrade the schema using ctx.update() method and
+        # ctx.query() for querying.
         raise NotImplementedError()
