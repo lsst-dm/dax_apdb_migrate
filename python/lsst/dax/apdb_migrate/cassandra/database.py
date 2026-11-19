@@ -22,17 +22,16 @@
 from __future__ import annotations
 
 import logging
-from collections.abc import Iterator, Mapping
+from collections.abc import Generator, Mapping
 from contextlib import contextmanager
 from typing import Any
 
-import cassandra.query
 import sqlalchemy
-from cassandra import ConsistencyLevel
-from cassandra.auth import AuthProvider, PlainTextAuthProvider
-from cassandra.cluster import EXEC_PROFILE_DEFAULT, Cluster, ExecutionProfile, Session
-from cassandra.policies import RoundRobinPolicy
-from lsst.utils.db_auth import DbAuth, DbAuthNotFoundError
+from cassandra.cluster import Session
+
+from lsst.dax.apdb import ApdbConfig
+from lsst.dax.apdb.cassandra import ApdbCassandraConfig
+from lsst.dax.apdb.cassandra.sessionFactory import SessionContext
 
 from .. import revision
 from .apdb_metadata import ApdbMetadata
@@ -50,30 +49,31 @@ class Database:
 
     Parameters
     ----------
-    host : `str`
-        Cassandra server host name.
-    port : `int`, optional
-        Port number for Cassandra connection.
-    keyspace : `str`
-        Cassandra keyspace name.
-    username : `str`, optional
-        Username to use for authetication, not needed if dbauth.yaml defines
-        user name.
+    config_uri : `str`
+        Path or URI of APDB configuration file.
     """
 
     metadata_table_name = "metadata"
     """Name of the metadata table holding versions."""
 
-    def __init__(self, host: str, keyspace: str, port: int | None = None, username: str | None = None):
-        self._host = host
-        self._keyspace = keyspace
-        self._port = port if port is not None else 9042
-        self._username = username
+    def __init__(self, config_uri: str):
+        config = ApdbConfig.from_uri(config_uri)
+        if not isinstance(config, ApdbCassandraConfig):
+            raise TypeError(f"Configuration file is for non-Cassandra implementation: {config_uri}")
+        if config.prefix:
+            raise ValueError(
+                f"Config file defines prefix={config.prefix}, "
+                "but Cassandra migrations do not support non-empty table prefixes."
+            )
+        # Make timeouts arbitrary large in case some queries take too long.
+        config.connection_config.read_timeout = 3600
+        config.connection_config.write_timeout = 3600
+        self._config = config
 
     @property
     def keyspace(self) -> str:
-        """Keyspace name (`str`)"""
-        return self._keyspace
+        """Keyspace name (`str`)."""
+        return self._config.keyspace
 
     def tree_versions(self) -> Mapping[str, tuple[str, str]]:
         """Retrieve current versions stored in metadata table.
@@ -86,7 +86,7 @@ class Database:
         """
         versions = {}
         with self.make_session() as session:
-            meta = ApdbMetadata(session, self._keyspace)
+            meta = ApdbMetadata(session, self.keyspace)
             for name, value in meta.items():
                 if name.startswith("version:") and value is not None:
                     versions[name.partition(":")[-1]] = value
@@ -100,17 +100,9 @@ class Database:
         return revisions
 
     @contextmanager
-    def make_session(self) -> Iterator[Session]:
+    def make_session(self) -> Generator[Session]:
         """Make Cassandra session."""
-        cluster = Cluster(
-            execution_profiles=self._make_profiles(),
-            contact_points=[self._host],
-            port=self._port,
-            auth_provider=self._make_auth_provider(),
-            protocol_version=5,
-        )
-        try:
-            session = cluster.connect()
+        with SessionContext(self._config) as session:
             # Dump queries if debug level is enabled.
             if _LOG.isEnabledFor(logging.DEBUG):
                 session.add_request_init_listener(_dump_query)
@@ -120,59 +112,6 @@ class Database:
 
             yield session
             del session
-
-        finally:
-            cluster.shutdown()
-            del cluster
-
-    def _make_profiles(self) -> Mapping[Any, ExecutionProfile]:
-        loadBalancePolicy = RoundRobinPolicy()
-        # Use a very long timeout just in case our queries are not efficient.
-        default_profile = ExecutionProfile(
-            consistency_level=ConsistencyLevel.LOCAL_QUORUM,
-            request_timeout=3600.0,
-            row_factory=cassandra.query.named_tuple_factory,
-            load_balancing_policy=loadBalancePolicy,
-        )
-        # read_tuples may be useful if number of rows is very large.
-        read_tuples = ExecutionProfile(
-            consistency_level=ConsistencyLevel.LOCAL_QUORUM,
-            request_timeout=3600.0,
-            row_factory=cassandra.query.tuple_factory,
-            load_balancing_policy=loadBalancePolicy,
-        )
-        return {
-            EXEC_PROFILE_DEFAULT: default_profile,
-            "read_tuples": read_tuples,
-        }
-
-    def _make_auth_provider(self) -> AuthProvider | None:
-        """Make Cassandra authentication provider instance."""
-        try:
-            dbauth = DbAuth()
-        except DbAuthNotFoundError:
-            # Credentials file doesn't exist, use anonymous login.
-            return None
-
-        try:
-            username, password = dbauth.getAuth(
-                "cassandra",
-                self._username,
-                self._host,
-                self._port,
-                self._keyspace,
-            )
-            if username:
-                return PlainTextAuthProvider(username=username, password=password)
-            else:
-                _LOG.warning(
-                    f"Credentials file ({dbauth.db_auth_path}) provided password but not "
-                    "user name, anonymous Cassandra logon will be attempted."
-                )
-        except DbAuthNotFoundError:
-            pass
-
-        return None
 
     def make_alembic_db(self) -> sqlalchemy.Engine:
         """Make in-memory SQLite database with populated alembic_version table.

@@ -27,6 +27,7 @@ dependencies = [
     "alembic",
     "lsst-utils",
     "astropy",
+    "lsst-dax-apdb",
 ]
 dynamic = ["version"]
 
@@ -137,4 +138,7 @@ checks = [
     "RT03",  # Temporarily disable for sphinx empty returns.
     "PR04",  # New Sphinx can infer types from python typing
 ]
-exclude = []
+exclude = [
+    'apdb_migrate_cassandra.*',  # Click stuff.
+    '\._[a-zA-Z_]+$',  # Private methods.
+]

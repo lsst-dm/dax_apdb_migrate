@@ -4,4 +4,5 @@ sqlalchemy
 alembic
 cassandra-driver
 pyyaml
+lsst-dax-apdb @ git+https://github.com/lsst/dax_apdb@main
 lsst-utils @ git+https://github.com/lsst/utils@main
