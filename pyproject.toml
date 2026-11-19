@@ -3,22 +3,22 @@ requires = ["setuptools", "lsst-versions >= 1.3.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "lsst-daf-butler-migrate"
-description = "Tooling for migrating schemas in butler repositories."
-license = {text = "GPLv3+ License"}
+name = "lsst-dax-apdb-migrate"
+description = "Tooling for migrating schemas in Alert Production Databases."
+license = "GPL-3.0-or-later"
+license-files = ["COPYRIGHT", "LICENSE", "gpl-v3.0.txt"]
 readme = "README.md"
 authors = [
     {name="Rubin Observatory Data Management", email="dm-admin@lists.lsst.org"},
 ]
 classifiers = [
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: BSD License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Topic :: Scientific/Engineering :: Astronomy",
 ]
 keywords = ["lsst"]
@@ -49,10 +49,9 @@ where = ["python"]
 
 [tool.setuptools]
 zip-safe = true
-license-files = ["COPYRIGHT", "LICENSE"]
 
 [tool.setuptools.package-data]
-"lsst.daf.butler_migrate" = []
+"lsst.daf.butler_migrate" = ["py.typed"]
 
 [tool.setuptools.dynamic]
 version = { attr = "lsst_versions.get_lsst_version" }
@@ -64,6 +63,7 @@ target-version = ["py312"]
 [tool.isort]
 profile = "black"
 line_length = 110
+known_first_party = ["lsst"]
 
 [tool.lsst_versions]
 write_to = "python/lsst/dax/apdb_migrate/version.py"
@@ -99,9 +99,12 @@ select = [
     "N",  # pep8-naming
     "W",  # pycodestyle
     "D",  # pydocstyle
+    "UP",  # pyupgrade
+    "I",  # isort
+    "RUF022",  # sort __all__
 ]
 extend-select = [
-   "RUF100", # Warn about unused noqa
+    "RUF100", # Warn about unused noqa
 ]
 
 [tool.ruff.lint.isort]
