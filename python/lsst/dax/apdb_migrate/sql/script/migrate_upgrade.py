@@ -28,14 +28,14 @@ import logging
 from alembic import command
 from alembic.script import ScriptDirectory
 
-from .. import config, database
+from ..config import ApdbMigConfigSql
+from ..database import Database, MissingMetadataError
 
 _LOG = logging.getLogger(__name__)
 
 
 def migrate_upgrade(
-    db_url: str,
-    schema: str | None,
+    config: str,
     revision: str,
     mig_path: str,
     sql: bool,
@@ -46,10 +46,8 @@ def migrate_upgrade(
 
     Parameters
     ----------
-    db_url : `str`
-        Database URL.
-    schema : `str` or `None`
-        Database schema name.
+    config : `str`
+        Path or URI of APDB configuration file.
     revision : `str`
         Target revision or colon-separated range for sql mode.
     mig_path : `str`
@@ -59,9 +57,9 @@ def migrate_upgrade(
     no_metadata : `bool`
         If True then allow for missing metadata table (pre-0.1.1 setup).
     options : `dict` or `None`
-        Additional key:value options specified on command line
+        Additional key:value options specified on command line.
     """
-    db = database.Database(db_url, schema, no_metadata)
+    db = Database(config, no_metadata)
 
     # Check that alembic versions exist in database, we do not support
     # migrations from empty state.
@@ -70,13 +68,13 @@ def migrate_upgrade(
             "Alembic version table does not exist, you may need to run `apdb-migrate-sql stamp` first."
         )
 
-    cfg = config.ApdbMigConfigSql.from_mig_path(mig_path, db=db, migration_options=options)
+    cfg = ApdbMigConfigSql.from_mig_path(mig_path, db=db, migration_options=options)
 
     # check that alembic versions are consistent with butler
     script_info = ScriptDirectory.from_config(cfg)
     try:
         db.validate_revisions(script_info.get_bases())
-    except database.MissingMetadataError as exc:
+    except MissingMetadataError as exc:
         exc.add_note(
             "Check schema name or use --no-metadata option in case this is a pre-historic APDB "
             "instance that is missing metadata table."

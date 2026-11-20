@@ -28,22 +28,21 @@ import logging
 from alembic import command
 from alembic.script import ScriptDirectory
 
-from .. import config, database
+from ..config import ApdbMigConfigSql
+from ..database import Database
 
 _LOG = logging.getLogger(__name__)
 
 
 def migrate_downgrade(
-    db_url: str, schema: str | None, revision: str, mig_path: str, sql: bool, options: dict[str, str] | None
+    config: str, revision: str, mig_path: str, sql: bool, options: dict[str, str] | None
 ) -> None:
     """Downgrade schema to a specified revision.
 
     Parameters
     ----------
-    db_url : `str`
-        Database URL.
-    schema : `str` or `None`
-        Database schema name.
+    config : `str`
+        Path or URI of APDB configuration file.
     revision : `str`
         Target revision or colon-separated range for sql mode.
     mig_path : `str`
@@ -51,9 +50,9 @@ def migrate_downgrade(
     sql : `bool`
         If True dump SQL instead of executing migration on a database.
     options : `dict` or `None`
-        Additional key:value options specified on command line
+        Additional key:value options specified on command line.
     """
-    db = database.Database(db_url, schema)
+    db = Database(config)
 
     # Check that alembic versions exist in database, we do not support
     # migrations from empty state.
@@ -62,7 +61,7 @@ def migrate_downgrade(
             "Alembic version table does not exist, you may need to run `apdb-migrate-sql stamp` first."
         )
 
-    cfg = config.ApdbMigConfigSql.from_mig_path(mig_path, db=db, migration_options=options)
+    cfg = ApdbMigConfigSql.from_mig_path(mig_path, db=db, migration_options=options)
 
     # check that alembic versions are consistent with butler
     script_info = ScriptDirectory.from_config(cfg)

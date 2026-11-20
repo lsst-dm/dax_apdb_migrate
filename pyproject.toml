@@ -140,5 +140,6 @@ checks = [
 ]
 exclude = [
     'apdb_migrate_cassandra.*',  # Click stuff.
+    'apdb_migrate_sql.*',  # Click stuff.
     '\._[a-zA-Z0-9_]+$',  # Private methods.
 ]
