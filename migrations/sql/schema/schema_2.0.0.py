@@ -9,6 +9,7 @@ import logging
 
 import alembic
 import sqlalchemy
+
 from lsst.dax.apdb_migrate.sql.context import Context
 
 # revision identifiers, used by Alembic.

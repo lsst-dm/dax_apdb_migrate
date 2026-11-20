@@ -24,6 +24,7 @@ from __future__ import annotations
 from typing import cast
 
 from alembic import context
+
 from lsst.dax.apdb_migrate.cassandra.config import ApdbMigConfigCassandra
 
 # This is the Alembic Config object, this is must be ApdbMigConfigCassandra

@@ -8,6 +8,7 @@ Create Date: 2024-05-09 11:51:35.137715
 import logging
 
 import sqlalchemy
+
 from lsst.dax.apdb_migrate.sql.context import Context
 
 # revision identifiers, used by Alembic.

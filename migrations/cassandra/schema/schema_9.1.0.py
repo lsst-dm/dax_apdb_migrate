@@ -8,6 +8,7 @@ Create Date: 2025-10-14 20:54:13.669243
 import logging
 
 import cassandra.query
+
 from lsst.dax.apdb_migrate.cassandra.context import Context
 from lsst.utils.iteration import chunk_iterable
 

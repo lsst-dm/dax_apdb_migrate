@@ -3,12 +3,12 @@
 Revision ID: ApdbSql_0.1.1
 Revises: ApdbSql_0.1.0
 Create Date: 2024-07-29 11:02:45.959048
-
 """
 
 import logging
 
 import sqlalchemy
+
 from lsst.dax.apdb_migrate.sql.context import Context
 
 # revision identifiers, used by Alembic.

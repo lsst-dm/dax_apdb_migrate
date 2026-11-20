@@ -14,6 +14,7 @@ from typing import Any, NamedTuple, overload
 
 import sqlalchemy
 from astropy.time import Time
+
 from lsst.dax.apdb_migrate.sql.context import Context
 from lsst.utils.iteration import chunk_iterable
 

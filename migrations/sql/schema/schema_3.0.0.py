@@ -3,12 +3,12 @@
 Revision ID: schema_3.0.0
 Revises: schema_2.0.1
 Create Date: 2024-12-19 14:35:42.740977
-
 """
 
 import logging
 
 import sqlalchemy
+
 from lsst.dax.apdb_migrate.sql.context import Context
 
 # revision identifiers, used by Alembic.

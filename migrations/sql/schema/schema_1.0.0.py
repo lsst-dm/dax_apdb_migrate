@@ -10,6 +10,7 @@ from typing import Any
 
 import sqlalchemy
 from alembic import op
+
 from lsst.dax.apdb_migrate.sql.context import Context
 
 # revision identifiers, used by Alembic.
