@@ -21,7 +21,7 @@ These tables will need to be removed manually once all their chunks are removed.
 
 An example command for applying the schema upgrade::
 
-    $ apdb-migrate-cassandra upgrade <host> <keyspace> ApdbCassandraReplica_1.1.0
+    $ apdb-migrate-cassandra upgrade <apdb-config> ApdbCassandraReplica_1.1.0
 
 
 Upgrade from 1.1.0 to 1.1.1
@@ -33,4 +33,4 @@ This schema upgrade adds ``ApdbUpdateRecordChunks`` table used for replicating c
 
 An example command for applying the schema upgrade::
 
-    $ apdb-migrate-cassandra upgrade <host> <keyspace> ApdbCassandraReplica_1.1.1
+    $ apdb-migrate-cassandra upgrade <apdb-config> ApdbCassandraReplica_1.1.1

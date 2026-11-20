@@ -11,7 +11,7 @@ This schema upgrade adds an additional table ``DiaObjectLastToPartition`` used t
 
 An example command for applying the schema upgrade::
 
-    $ apdb-migrate-cassandra upgrade <host> <keyspace> ApdbCassandra_0.1.1
+    $ apdb-migrate-cassandra upgrade <apdb-config> ApdbCassandra_0.1.1
 
 
 Upgrade from 0.1.1 to 0.1.2
@@ -23,7 +23,7 @@ This schema upgrade adds an additional table ``ApdbVisitDetector`` to store visi
 
 An example command for applying the schema upgrade::
 
-    $ apdb-migrate-cassandra upgrade <host> <keyspace> ApdbCassandra_0.1.2
+    $ apdb-migrate-cassandra upgrade <apdb-config> ApdbCassandra_0.1.2
 
 
 Upgrade from 0.1.2 to 0.1.3
@@ -36,7 +36,7 @@ This new key only exists when APDB is configured with per-partition tables.
 
 An example command for applying the schema upgrade::
 
-    $ apdb-migrate-cassandra upgrade <host> <keyspace> ApdbCassandra_0.1.3
+    $ apdb-migrate-cassandra upgrade <apdb-config> ApdbCassandra_0.1.3
 
 
 Upgrade from 0.1.3 to 1.0.0
@@ -51,7 +51,7 @@ This migration has to be applied after migration to ``schema_8.0.0``, it will fa
 
 An example command for applying the schema upgrade::
 
-    $ apdb-migrate-cassandra upgrade <host> <keyspace> ApdbCassandra_1.0.0
+    $ apdb-migrate-cassandra upgrade <apdb-config> ApdbCassandra_1.0.0
 
 
 Upgrade from 1.0.0 to 1.1.0
@@ -69,7 +69,7 @@ Dependencies:
 
 An example command for applying the schema upgrade::
 
-    $ apdb-migrate-cassandra upgrade <host> <keyspace> ApdbCassandra_1.1.0
+    $ apdb-migrate-cassandra upgrade <apdb-config> ApdbCassandra_1.1.0
 
 .. note::
     Cassandra database cannot be migrated to schema 9.0.0 from earlier versions.
@@ -92,7 +92,7 @@ Dependencies:
 
 An example command for applying the schema upgrade::
 
-    $ apdb-migrate-cassandra upgrade <host> <keyspace> ApdbCassandra_1.2.0
+    $ apdb-migrate-cassandra upgrade <apdb-config> ApdbCassandra_1.2.0
 
 
 Upgrade from 1.2.0 to 1.2.1
@@ -105,7 +105,7 @@ This migration deletes existing ``SSObject`` table from database.
 
 An example command for applying the schema upgrade::
 
-    $ apdb-migrate-cassandra upgrade <host> <keyspace> ApdbCassandra_1.2.1
+    $ apdb-migrate-cassandra upgrade <apdb-config> ApdbCassandra_1.2.1
 
 
 Upgrade from 1.2.1 to 1.3.0
@@ -125,4 +125,4 @@ The script requires two additional parameters:
 
 An example command for applying the schema upgrade::
 
-    $ apdb-migrate-cassandra upgrade --options data-source=DiaObject --options num-partitions=100 <host> <keyspace> ApdbCassandra_1.3.0
+    $ apdb-migrate-cassandra upgrade --options data-source=DiaObject --options num-partitions=100 <apdb-config> ApdbCassandra_1.3.0

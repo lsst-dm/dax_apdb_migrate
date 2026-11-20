@@ -16,7 +16,7 @@ The code tries to guess all necessary changes to bring all those schemas into a 
 
 An example of specifying different version number for ApdbSql::
 
-    $ apdb-migrate-sql upgrade --options apdb_sql_version=0.2.0 -s SCHEMA_NAME $APDB_URL schema_0.1.1
+    $ apdb-migrate-sql upgrade --options apdb_sql_version=0.2.0 <apdb-config> schema_0.1.1
 
 
 Upgrade from 0.1.1 to 1.0.0
@@ -38,7 +38,7 @@ If script cannot import corresponding instrument classes, it will raise an excep
 An example of migrating APDB populated from LATISS data::
 
     $ setup -k obs_lsst
-    $ apdb-migrate-sql upgrade -s SCHEMA_NAME --options butler-repo=/repo/main --options instrument=LATISS $APDB_URL schema_1.0.0
+    $ apdb-migrate-sql upgrade --options butler-repo=/repo/main --options instrument=LATISS <apdb-config> schema_1.0.0
 
 
 Upgrade from 1.0.0 to 1.1.0
@@ -52,7 +52,7 @@ No additional parameters or packages are needed for this script.
 
 An example of migration::
 
-    $ apdb-migrate-sql upgrade -s SCHEMA_NAME $APDB_URL schema_1.1.0
+    $ apdb-migrate-sql upgrade <apdb-config> schema_1.1.0
 
 
 Upgrade from 1.1.0 to 2.0.0
@@ -66,7 +66,7 @@ No additional parameters or packages are needed for this script.
 
 An example of migration::
 
-    $ apdb-migrate-sql upgrade -s SCHEMA_NAME $APDB_URL schema_2.0.0
+    $ apdb-migrate-sql upgrade <apdb-config> schema_2.0.0
 
 Upgrade from 2.0.0 to 2.0.1
 ===========================
@@ -79,7 +79,7 @@ No additional parameters or packages are needed for this script.
 
 An example of migration::
 
-    $ apdb-migrate-sql upgrade -s SCHEMA_NAME $APDB_URL schema_2.0.1
+    $ apdb-migrate-sql upgrade <apdb-config> schema_2.0.1
 
 Upgrade from 2.0.1 to 3.0.0
 ===========================
@@ -91,7 +91,7 @@ No additional parameters or packages are needed for this script.
 
 An example of migration::
 
-    $ apdb-migrate-sql upgrade -s SCHEMA_NAME $APDB_URL schema_3.0.0
+    $ apdb-migrate-sql upgrade <apdb-config> schema_3.0.0
 
 Upgrade from 3.0.0 to 4.0.0
 ===========================
@@ -104,7 +104,7 @@ No additional parameters or packages are needed for this script.
 
 An example of migration::
 
-    $ apdb-migrate-sql upgrade -s SCHEMA_NAME $APDB_URL schema_4.0.0
+    $ apdb-migrate-sql upgrade <apdb-config> schema_4.0.0
 
 Upgrade from 4.0.0 to 5.0.0
 ===========================
@@ -116,7 +116,7 @@ No additional parameters or packages are needed for this script.
 
 An example of migration::
 
-    $ apdb-migrate-sql upgrade -s SCHEMA_NAME $APDB_URL schema_5.0.0
+    $ apdb-migrate-sql upgrade <apdb-config> schema_5.0.0
 
 Upgrade from 5.0.0 to 6.0.0
 ===========================
@@ -128,7 +128,7 @@ No additional parameters or packages are needed for this script.
 
 An example of migration::
 
-    $ apdb-migrate-sql upgrade -s SCHEMA_NAME $APDB_URL schema_6.0.0
+    $ apdb-migrate-sql upgrade <apdb-config> schema_6.0.0
 
 Upgrade from 6.0.0 to 7.0.0
 ===========================
@@ -140,7 +140,7 @@ No additional parameters or packages are needed for this script.
 
 An example of migration::
 
-    $ apdb-migrate-sql upgrade -s SCHEMA_NAME $APDB_URL schema_7.0.0
+    $ apdb-migrate-sql upgrade <apdb-config> schema_7.0.0
 
 Upgrade from 7.0.0 to 7.0.1
 ===========================
@@ -153,7 +153,7 @@ No additional parameters or packages are needed for this script.
 
 An example of migration::
 
-    $ apdb-migrate-sql upgrade -s SCHEMA_NAME $APDB_URL schema_7.0.1
+    $ apdb-migrate-sql upgrade <apdb-config> schema_7.0.1
 
 Upgrade from 7.0.1 to 8.0.0
 ===========================
@@ -167,7 +167,7 @@ Migration to ``ApdbSql_1.0.0`` should be performed after migration to ``schema_8
 
 An example of migration::
 
-    $ apdb-migrate-sql upgrade -s SCHEMA_NAME $APDB_URL schema_8.0.0
+    $ apdb-migrate-sql upgrade <apdb-config> schema_8.0.0
 
 Upgrade from 8.0.0 to 9.0.0
 ===========================
@@ -181,7 +181,7 @@ Migration to ``ApdbSql_1.1.0`` should be performed together and after migration 
 
 An example of migration::
 
-    $ apdb-migrate-sql upgrade -s SCHEMA_NAME $APDB_URL schema_9.0.0
+    $ apdb-migrate-sql upgrade <apdb-config> schema_9.0.0
 
 Upgrade from 9.0.0 to 9.1.0
 ===========================
@@ -197,7 +197,7 @@ Dependencies:
 
 An example of migration::
 
-    $ apdb-migrate-sql upgrade -s SCHEMA_NAME $APDB_URL schema_9.1.0
+    $ apdb-migrate-sql upgrade <apdb-config> schema_9.1.0
 
 Upgrade from 9.1.0 to 9.1.1
 ===========================
@@ -209,7 +209,7 @@ The migration adds the constraint to those columns and also fills ``NULL`` value
 
 An example of migration::
 
-    $ apdb-migrate-sql upgrade -s SCHEMA_NAME $APDB_URL schema_9.1.1
+    $ apdb-migrate-sql upgrade <apdb-config> schema_9.1.1
 
 Upgrade from 9.1.1 to 10.0.0
 ============================
@@ -220,7 +220,7 @@ Version 10.0.0 adds four new columns to ``DiaSource`` table -- ``exposureTime``,
 
 An example of migration::
 
-    $ apdb-migrate-sql upgrade -s SCHEMA_NAME $APDB_URL schema_10.0.0
+    $ apdb-migrate-sql upgrade <apdb-config> schema_10.0.0
 
 Upgrade from 10.0.0 to 11.0.0
 =============================
@@ -231,4 +231,4 @@ Version 11.0.0 adds seven new columns to ``DiaSource`` table.
 
 An example of migration::
 
-    $ apdb-migrate-sql upgrade -s SCHEMA_NAME $APDB_URL schema_11.0.0
+    $ apdb-migrate-sql upgrade <apdb-config> schema_11.0.0
