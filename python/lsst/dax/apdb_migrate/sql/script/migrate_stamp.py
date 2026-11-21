@@ -29,14 +29,14 @@ from alembic import command
 from alembic.script import ScriptDirectory
 
 from ... import revision
-from .. import config, database
+from ..config import ApdbMigConfigSql
+from ..database import Database, MissingMetadataError
 
 _LOG = logging.getLogger(__name__)
 
 
 def migrate_stamp(
-    db_url: str,
-    schema: str | None,
+    config: str,
     mig_path: str,
     purge: bool,
     dry_run: bool,
@@ -47,10 +47,8 @@ def migrate_stamp(
 
     Parameters
     ----------
-    db_url : `str`
-        Database URL.
-    schema : `str` or `None`
-        Database schema name.
+    config : `str`
+        Path or URI of APDB configuration file.
     mig_path : `str`
         Filesystem path to location of revisions.
     purge : `bool`
@@ -59,14 +57,14 @@ def migrate_stamp(
         Skip all updates.
     no_metadata : `bool`
         If True then allow for missing metadata table (pre-0.1.1 setup).
-    tree_name: `str`, Optional
+    tree_name : `str`, Optional
         Name of the tree to stamp, if `None` then all managers are stamped.
     """
-    db = database.Database(db_url, schema, no_metadata)
+    db = Database(config, no_metadata)
 
     try:
         tree_versions = db.tree_versions()
-    except database.MissingMetadataError as exc:
+    except MissingMetadataError as exc:
         exc.add_note(
             "Check schema name or use --no-metadata option in case this is a pre-historic APDB "
             "instance that is missing metadata table."
@@ -81,7 +79,7 @@ def migrate_stamp(
         _LOG.debug("found revision (%s, %s) -> %s", tree, version, rev_id)
         revisions[tree] = rev_id
 
-    cfg: config.ApdbMigConfigSql | None = None
+    cfg: ApdbMigConfigSql | None = None
     if tree_name:
         if tree_name in revisions:
             revisions = {tree_name: revisions[tree_name]}
@@ -89,7 +87,7 @@ def migrate_stamp(
             # If specified manager not in the database, it may mean that an
             # initial "tree-root" revision needs to be added to alembic
             # table, if that manager is defined in the migration trees.
-            cfg = config.ApdbMigConfigSql.from_mig_path(mig_path, db=db)
+            cfg = ApdbMigConfigSql.from_mig_path(mig_path, db=db)
             script_info = ScriptDirectory.from_config(cfg)
             base_revision = revision.rev_id(tree_name)
             if base_revision not in script_info.get_bases():
@@ -102,6 +100,6 @@ def migrate_stamp(
             print(f"  {tree}: {rev_id}")
     else:
         if cfg is None:
-            cfg = config.ApdbMigConfigSql.from_mig_path(mig_path, db=db)
+            cfg = ApdbMigConfigSql.from_mig_path(mig_path, db=db)
         for rev in revisions.values():
             command.stamp(cfg, rev, purge=purge)

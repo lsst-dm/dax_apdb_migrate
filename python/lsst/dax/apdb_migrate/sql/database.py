@@ -22,12 +22,15 @@
 from __future__ import annotations
 
 import logging
-from collections.abc import Iterable, Iterator, Mapping
+from collections.abc import Generator, Iterable, Mapping
 from contextlib import contextmanager
 from typing import cast
 
 import sqlalchemy
 from alembic.runtime.migration import MigrationContext
+
+from lsst.dax.apdb import ApdbConfig
+from lsst.dax.apdb.sql import ApdbSqlConfig
 
 from .. import revision
 
@@ -49,10 +52,8 @@ class Database:
 
     Parameters
     ----------
-    db_url : `str`
-        Database URL.
-    schema : `str`, optional
-        Database schema/namespace.
+    config_uri : `str`
+        Path or URI of APDB configuration file.
     no_metadata : `bool`
         If True then allow for missing metadata table (pre-0.1.1 setup).
     """
@@ -60,25 +61,27 @@ class Database:
     metadata_table_name = "metadata"
     """Name of the metadata table holding versions."""
 
-    def __init__(self, db_url: str, schema: str | None = None, no_metadata: bool = False):
-        self._db_url = sqlalchemy.engine.make_url(db_url)
-        self._schema = schema
+    def __init__(self, config_uri: str, no_metadata: bool = False):
+        config = ApdbConfig.from_uri(config_uri)
+        if not isinstance(config, ApdbSqlConfig):
+            raise TypeError(f"Configuration file is for non-SQL implementation: {config_uri}")
+        self._config = config
         self._no_metadata = no_metadata
 
     @property
     def db_url(self) -> str:
-        """URL for registry database (`str`)"""
-        return self._db_url.render_as_string(hide_password=False)
+        """URL for registry database (`str`)."""
+        return self._config.db_url
 
     @property
     def schema(self) -> str | None:
-        """Schema (namespace) name (`str`)"""
-        return self._schema
+        """Schema (namespace) name (`str`)."""
+        return self._config.namespace
 
     @contextmanager
-    def connect(self) -> Iterator[sqlalchemy.engine.Connection]:
+    def connect(self) -> Generator[sqlalchemy.engine.Connection]:
         """Context manager for database connection."""
-        engine = sqlalchemy.engine.create_engine(self._db_url)
+        engine = sqlalchemy.engine.create_engine(self.db_url)
         with engine.connect() as connection:
             yield connection
 
@@ -91,12 +94,12 @@ class Database:
             Mapping whose key is a tree name and value is a tuple consisting of
             version string, and revision ID string/hash.
         """
-        engine = sqlalchemy.engine.create_engine(self._db_url)
+        engine = sqlalchemy.engine.create_engine(self.db_url)
 
         versions: dict[str, str] = {}
 
         inspector = sqlalchemy.inspect(engine)
-        has_metadata = inspector.has_table(self.metadata_table_name, schema=self._schema)
+        has_metadata = inspector.has_table(self.metadata_table_name, schema=self.schema)
         if not has_metadata:
             if self._no_metadata:
                 versions = {"schema": "0.1.0", "ApdbSql": "0.1.0"}
@@ -104,7 +107,7 @@ class Database:
                 raise MissingMetadataError("metadata table is not found, please check schema name")
         else:
             # Read versions from metadata table.
-            meta = sqlalchemy.schema.MetaData(schema=self._schema)
+            meta = sqlalchemy.schema.MetaData(schema=self.schema)
             table = sqlalchemy.schema.Table(
                 self.metadata_table_name,
                 meta,
@@ -132,7 +135,7 @@ class Database:
         return revisions
 
     def alembic_revisions(self) -> list[str]:
-        """Return a list of current revision numbers from database
+        """Return a list of current revision numbers from database.
 
         Returns
         -------
@@ -140,10 +143,10 @@ class Database:
             Returned list is empty if alembic version table does not exist or
             is empty.
         """
-        engine = sqlalchemy.engine.create_engine(self._db_url)
+        engine = sqlalchemy.engine.create_engine(self.db_url)
         with engine.connect() as connection:
             ctx = MigrationContext.configure(
-                connection=connection, opts={"version_table_schema": self._schema}
+                connection=connection, opts={"version_table_schema": self.schema}
             )
             return list(ctx.get_current_heads())
 
@@ -206,20 +209,20 @@ class Database:
 
         Parameters
         ----------
-        tables: `list`, optional
+        tables : `list`, optional
             List of the tables, if missing or empty then schema for all tables
             is printed.
         """
-        engine = sqlalchemy.engine.create_engine(self._db_url)
+        engine = sqlalchemy.engine.create_engine(self.db_url)
         inspector = sqlalchemy.inspect(engine)
-        table_names = sorted(inspector.get_table_names(schema=self._schema))
+        table_names = sorted(inspector.get_table_names(schema=self.schema))
         for table in table_names:
             if tables and table not in tables:
                 continue
 
             print(f"table={table}")
 
-            column_list = inspector.get_columns(table, schema=self._schema)
+            column_list = inspector.get_columns(table, schema=self.schema)
             column_list.sort(key=lambda c: c["name"])
             for col in column_list:
                 print(
@@ -227,18 +230,18 @@ class Database:
                     f" default={col['default']} [table={table}]"
                 )
 
-            pk = inspector.get_pk_constraint(table, schema=self._schema)
+            pk = inspector.get_pk_constraint(table, schema=self.schema)
             if pk:
                 columns = ",".join(pk["constrained_columns"])
                 print(f"  PK name={pk['name']} columns=({columns}) [table={table}]")
 
-            uniques = inspector.get_unique_constraints(table, schema=self._schema)
+            uniques = inspector.get_unique_constraints(table, schema=self.schema)
             uniques.sort(key=lambda uq: cast(str, uq["name"]))
             for uq in uniques:
                 columns = ",".join(uq["column_names"])
                 print(f"  UNIQUE name={uq['name']} columns=({columns}) [table={table}]")
 
-            fks = inspector.get_foreign_keys(table, schema=self._schema)
+            fks = inspector.get_foreign_keys(table, schema=self.schema)
             fks.sort(key=lambda fk: cast(str, fk["name"]))
             for fk in fks:
                 columns = ",".join(fk["constrained_columns"])
@@ -248,12 +251,12 @@ class Database:
                     f" [table={table}]"
                 )
 
-            checks = inspector.get_check_constraints(table, schema=self._schema)
+            checks = inspector.get_check_constraints(table, schema=self.schema)
             checks.sort(key=lambda chk: cast(str, chk["name"]))
             for check in checks:
                 print(f"  CHECK name={check['name']} sqltext={check['sqltext']} [table={table}]")
 
-            indices = inspector.get_indexes(table, schema=self._schema)
+            indices = inspector.get_indexes(table, schema=self.schema)
             indices.sort(key=lambda idx: cast(str, idx["name"]))
             for idx in indices:
                 columns = ",".join(cast(list[str], idx["column_names"]))

@@ -12,7 +12,7 @@ This is relevant for Postgres only, SQLite does not know about time zones, so th
 
 An example command for applying the schema upgrade::
 
-    $ apdb-migrate-sql upgrade -s SCHEMA_NAME $APDB_URL ApdbSql_0.1.1
+    $ apdb-migrate-sql upgrade <apdb-config> ApdbSql_0.1.1
 
 
 Upgrade from 0.1.1 to 0.1.2
@@ -30,7 +30,7 @@ Additionally ``felis`` package must be setup before running this script.
 An example command for applying the schema upgrade::
 
     $ setup -k felis
-    $ apdb-migrate-sql upgrade -s SCHEMA_NAME --options schema-file=/path/to/apdb.yaml $APDB_URL ApdbSql_0.1.2
+    $ apdb-migrate-sql upgrade --options schema-file=/path/to/apdb.yaml <apdb-config> ApdbSql_0.1.2
 
 Upgrade from 0.1.2 to 1.0.0
 ===========================
@@ -44,7 +44,7 @@ This migration has to be applied after migration to ``schema_8.0.0``, it will fa
 
 An example command for applying the schema upgrade::
 
-    $ apdb-migrate-sql upgrade -s SCHEMA_NAME $APDB_URL ApdbSql_1.0.0
+    $ apdb-migrate-sql upgrade <apdb-config> ApdbSql_1.0.0
 
 Upgrade from 1.0.0 to 1.1.0
 ===========================
@@ -61,7 +61,7 @@ Dependencies:
 
 An example command for applying the schema upgrade::
 
-    $ apdb-migrate-sql upgrade -s SCHEMA_NAME $APDB_URL ApdbSql_1.1.0
+    $ apdb-migrate-sql upgrade <apdb-config> ApdbSql_1.1.0
 
 Upgrade from 1.1.0 to 1.2.0
 ===========================
@@ -79,7 +79,7 @@ Dependencies:
 
 An example command for applying the schema upgrade::
 
-    $ apdb-migrate-sql upgrade -s SCHEMA_NAME $APDB_URL ApdbSql_1.2.0
+    $ apdb-migrate-sql upgrade <apdb-config> ApdbSql_1.2.0
 
 
 Upgrade from 1.2.0 to 1.2.1
@@ -92,4 +92,4 @@ This migration deletes existing ``SSObject`` table from database.
 
 An example command for applying the schema upgrade::
 
-    $ apdb-migrate-sql upgrade -s SCHEMA_NAME $APDB_URL ApdbSql_1.2.1
+    $ apdb-migrate-sql upgrade <apdb-config> ApdbSql_1.2.1

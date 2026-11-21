@@ -48,6 +48,11 @@ _LOG = logging.getLogger(__name__)
 class DryRunSession:
     """A replacement for Cassandra session that prints queries instead of
     executing them.
+
+    Parameters
+    ----------
+    session_for_prepare : `cassandra.cluster.Session`
+        Session used to prepare statements.
     """
 
     def __init__(self, session_for_prepare: Session):
@@ -66,7 +71,7 @@ class Context:
 
     Parameters
     ----------
-    revision_or_tree: `str`
+    revision_or_tree : `str`
         This can be either full revision string, if ``version`` is not
         specified, or revision tree name otherwise. If ``version`` is not given
         then tree name and version are extracted from the revision.
@@ -95,7 +100,7 @@ class Context:
         else:
             unpacked_tree, unpacked_version = revision.unpack_revision(revision_or_tree)
             if unpacked_tree is None or unpacked_version is None:
-                raise ValueError(f"Unsupported fromat of the revision string: {revision_or_tree}")
+                raise ValueError(f"Unsupported format of the revision string: {revision_or_tree}")
             self._version = unpacked_version
             self._tree = unpacked_tree
 
@@ -180,7 +185,7 @@ class Context:
 
     @property
     def keyspace(self) -> str:
-        """Keyspace name (`str`)"""
+        """Keyspace name (`str`)."""
         return self.db.keyspace
 
     def qoute_id(self, id_name: str) -> str:
@@ -266,7 +271,13 @@ class Context:
         return json.loads(config_json)
 
     def store_apdb_config(self, config: dict[str, Any]) -> None:
-        """Store frozen part of APDB config to metadata."""
+        """Store frozen part of APDB config to metadata.
+
+        Parameters
+        ----------
+        config
+            Configuration to store.
+        """
         json_str = json.dumps(config)
         self.metadata.insert(self.metadataConfigKey, json_str)
 
@@ -282,7 +293,7 @@ class Context:
         ----------
         tree : `str`
             Tree name.
-        value : `str`
+        version : `str`
             New version string.
         """
         self.metadata.insert(f"version:{tree}", version)

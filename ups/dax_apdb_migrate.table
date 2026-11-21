@@ -1,4 +1,5 @@
 setupRequired(sconsUtils)
+setupRequired(dax_apdb)
 setupRequired(utils)
 
 envPrepend(PATH, ${PRODUCT_DIR}/bin)

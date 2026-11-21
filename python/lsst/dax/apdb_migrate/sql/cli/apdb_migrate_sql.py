@@ -80,13 +80,12 @@ def add_revision(*args: Any, **kwargs: Any) -> None:
 )
 @options.no_metadata
 @options.mig_path_exist
-@options.schema
-@click.argument("db-url")
+@click.argument("config")
 def show_current(*args: Any, **kwargs: Any) -> None:
     """Display current revisions from either alembic_version or metadata
     tables.
 
-    DB_URL specifies APDB database connection URL.
+    CONFIG is path or URI of APDB configuration file.
     """
     script.migrate_current(*args, **kwargs)
 
@@ -115,15 +114,14 @@ def show_trees(*args: Any, **kwargs: Any) -> None:
 @options.mig_path_exist
 @options.stamp_purge
 @common_options.dry_run
-@options.schema
 @options.no_metadata
-@click.argument("db-url")
+@click.argument("config")
 @click.argument("tree-name", required=False)
 def stamp(*args: Any, **kwargs: Any) -> None:
     """Stamp Alembic revision table (alembic_version) with current manager
     versions from butler_attributes.
 
-    DB_URL specifies APDB database connection URL.
+    CONFIG is path or URI of APDB configuration file.
     Optional TREE_NAME argument specifies tree for which to stamp revision,
     by default all trees are stamped.
     """
@@ -133,15 +131,14 @@ def stamp(*args: Any, **kwargs: Any) -> None:
 @main.command(short_help="Upgrade schema to a specified revision.")
 @options.mig_path_exist
 @options.dump_sql
-@options.schema
 @common_options.options
 @options.no_metadata
-@click.argument("db-url")
+@click.argument("config")
 @click.argument("revision")
 def upgrade(*args: Any, **kwargs: Any) -> None:
     """Upgrade schema to a specified revision.
 
-    DB_URL specifies APDB database connection URL.
+    CONFIG is path or URI of APDB configuration file.
     REVISION is a target alembic revision, in offline mode it can also specify
     the initial revision using INITIAL:TARGET format.
     """
@@ -158,14 +155,13 @@ def upgrade(*args: Any, **kwargs: Any) -> None:
 @main.command(short_help="Downgrade schema to a specified revision.")
 @options.mig_path_exist
 @options.dump_sql
-@options.schema
 @common_options.options
-@click.argument("db-url")
+@click.argument("config")
 @click.argument("revision")
 def downgrade(*args: Any, **kwargs: Any) -> None:
     """Downgrade schema to a specified revision.
 
-    DB_URL specifies APDB database connection URL.
+    CONFIG is path or URI of APDB configuration file.
     REVISION is a target alembic revision, in offline mode it can also specify
     the initial revision using INITIAL:TARGET format.
     """

@@ -28,42 +28,39 @@ import logging
 from alembic import command
 from alembic.script import ScriptDirectory
 
-from .. import config, database
+from ..config import ApdbMigConfigSql
+from ..database import Database, MissingMetadataError
 
 _LOG = logging.getLogger(__name__)
 
 
-def migrate_current(
-    db_url: str, schema: str | None, mig_path: str, verbose: bool, metadata: bool, no_metadata: bool
-) -> None:
+def migrate_current(config: str, mig_path: str, verbose: bool, metadata: bool, no_metadata: bool) -> None:
     """Display current revisions for a database.
 
     Parameters
     ----------
-    db_url : `str`
-        Database URL.
-    schema : `str` or `None`
-        Database schema name.
+    config : `str`
+        Path or URI of APDB configuration file.
     mig_path : `str`
         Filesystem path to location of revisions.
     verbose : `bool`
         Print verbose information if this flag is true.
-    metadata: `bool`
+    metadata : `bool`
         If True then print versions numbers from metadata, otherwise display
         information about alembic revisions.
     no_metadata : `bool`
         If True then allow for missing metadata table (pre-0.1.1 setup).
     """
-    db = database.Database(db_url, schema, no_metadata)
+    db = Database(config, no_metadata)
 
-    cfg = config.ApdbMigConfigSql.from_mig_path(mig_path, db=db)
+    cfg = ApdbMigConfigSql.from_mig_path(mig_path, db=db)
     if metadata:
         # Print current versions defined in butler.
         script_info = ScriptDirectory.from_config(cfg)
         heads = script_info.get_heads()
         try:
             tree_versions = db.tree_versions()
-        except database.MissingMetadataError as exc:
+        except MissingMetadataError as exc:
             exc.add_note(
                 "Check schema name or use --no-metadata option in case this is a pre-historic APDB "
                 "instance that is missing metadata table."

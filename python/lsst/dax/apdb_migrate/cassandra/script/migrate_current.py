@@ -27,30 +27,27 @@ import logging
 
 from alembic.script import ScriptDirectory
 
-from .. import config, database
+from ..config import ApdbMigConfigCassandra
+from ..database import Database
 
 _LOG = logging.getLogger(__name__)
 
 
-def migrate_current(host: str, port: int | None, keyspace: str, mig_path: str, verbose: bool) -> None:
+def migrate_current(config: str, mig_path: str, verbose: bool) -> None:
     """Display current revisions for a database.
 
     Parameters
     ----------
-    host : `str`
-        Name of the Cassandra host to connect to.
-    port : `int`, optional
-        Port number.
-    keyspace : `str`
-        Cassandra keyspace name.
+    config : `str`
+        Path or URI of APDB configuration file.
     mig_path : `str`
         Filesystem path to location of revisions.
     verbose : `bool`
         Print verbose information if this flag is true.
     """
-    db = database.Database(host, keyspace, port)
+    db = Database(config)
 
-    cfg = config.ApdbMigConfigCassandra.from_mig_path(mig_path)
+    cfg = ApdbMigConfigCassandra.from_mig_path(mig_path)
 
     # Print current versions defined in butler.
     script_info = ScriptDirectory.from_config(cfg)

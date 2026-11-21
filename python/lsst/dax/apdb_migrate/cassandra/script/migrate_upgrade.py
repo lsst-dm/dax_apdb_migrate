@@ -25,15 +25,14 @@ import logging
 
 from alembic import command
 
-from .. import config, database
+from ..config import ApdbMigConfigCassandra
+from ..database import Database
 
 _LOG = logging.getLogger(__name__)
 
 
 def migrate_upgrade(
-    host: str,
-    port: int | None,
-    keyspace: str,
+    config: str,
     revision: str,
     mig_path: str,
     dry_run: bool,
@@ -43,12 +42,8 @@ def migrate_upgrade(
 
     Parameters
     ----------
-    host : `str`
-        Name of the Cassandra host to connect to.
-    port : `int`, optional
-        Port number.
-    keyspace : `str`
-        Cassandra keyspace name.
+    config : `str`
+        Path or URI of APDB configuration file.
     revision : `str`
         Target revision or colon-separated range for sql mode.
     mig_path : `str`
@@ -56,12 +51,10 @@ def migrate_upgrade(
     dry_run : `bool`
         If True dump queries instead of executing migration on a database.
     options : `dict` or `None`
-        Additional key:value options specified on command line
+        Additional key:value options specified on command line.
     """
-    db = database.Database(host, keyspace, port)
+    db = Database(config)
 
-    cfg = config.ApdbMigConfigCassandra.from_mig_path(
-        mig_path, db=db, migration_options=options, dry_run=dry_run
-    )
+    cfg = ApdbMigConfigCassandra.from_mig_path(mig_path, db=db, migration_options=options, dry_run=dry_run)
 
     command.upgrade(cfg, revision)

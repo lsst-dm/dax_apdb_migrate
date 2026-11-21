@@ -91,31 +91,25 @@ def show_trees(*args: Any, **kwargs: Any) -> None:
 @main.command(short_help="Display current revisions for a database.")
 @common_options.verbose
 @options.mig_path_exist
-@options.port
-@click.argument("host")
-@click.argument("keyspace")
+@click.argument("config")
 def show_current(*args: Any, **kwargs: Any) -> None:
     """Display current revisions stored in metadata table.
 
-    HOST specifies Cassandra host name to connect to.
-    KEYSPACE specifies Cassandra keyspace name.
+    CONFIG is path or URI of APDB configuration file.
     """
     script.migrate_current(*args, **kwargs)
 
 
 @main.command(short_help="Upgrade schema to a specified revision.")
 @options.mig_path_exist
-@options.port
 @common_options.dry_run
 @common_options.options
-@click.argument("host")
-@click.argument("keyspace")
+@click.argument("config")
 @click.argument("revision")
 def upgrade(*args: Any, **kwargs: Any) -> None:
     """Upgrade schema to a specified revision.
 
-    HOST specifies Cassandra host name to connect to.
-    KEYSPACE specifies Cassandra keyspace name.
+    CONFIG is path or URI of APDB configuration file.
     REVISION is a target revision name.
     """
     # Convert list of key=value to dict
@@ -130,17 +124,14 @@ def upgrade(*args: Any, **kwargs: Any) -> None:
 
 @main.command(short_help="Downgrade schema to a specified revision.")
 @options.mig_path_exist
-@options.port
 @common_options.dry_run
 @common_options.options
-@click.argument("host")
-@click.argument("keyspace")
+@click.argument("config")
 @click.argument("revision")
 def downgrade(*args: Any, **kwargs: Any) -> None:
     """Downgrade schema to a specified revision.
 
-    HOST specifies Cassandra host name to connect to.
-    KEYSPACE specifies Cassandra keyspace name.
+    CONFIG is path or URI of APDB configuration file.
     REVISION is a target revision name.
     """
     # Convert list of key=value to dict

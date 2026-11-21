@@ -14,7 +14,7 @@ No additional parameters or packages are needed for this script.
 
 An example of migration::
 
-    $ apdb-migrate-cassandra upgrade <host> <keyspace> schema_3.0.0
+    $ apdb-migrate-cassandra upgrade <apdb-config> schema_3.0.0
 
 Upgrade from 3.0.0 to 4.0.0
 ===========================
@@ -27,7 +27,7 @@ No additional parameters or packages are needed for this script.
 
 An example of migration::
 
-    $ apdb-migrate-cassandra upgrade <host> <keyspace> schema_4.0.0
+    $ apdb-migrate-cassandra upgrade <apdb-config> schema_4.0.0
 
 Upgrade from 4.0.0 to 5.0.0
 ===========================
@@ -39,7 +39,7 @@ No additional parameters or packages are needed for this script.
 
 An example of migration::
 
-    $ apdb-migrate-cassandra upgrade <host> <keyspace> schema_5.0.0
+    $ apdb-migrate-cassandra upgrade <apdb-config> schema_5.0.0
 
 Upgrade from 5.0.0 to 6.0.0
 ===========================
@@ -51,7 +51,7 @@ No additional parameters or packages are needed for this script.
 
 An example of migration::
 
-    $ apdb-migrate-cassandra upgrade <host> <keyspace> schema_6.0.0
+    $ apdb-migrate-cassandra upgrade <apdb-config> schema_6.0.0
 
 Upgrade from 6.0.0 to 7.0.0
 ===========================
@@ -63,7 +63,7 @@ No additional parameters or packages are needed for this script.
 
 An example of migration::
 
-    $ apdb-migrate-cassandra upgrade <host> <keyspace> schema_7.0.0
+    $ apdb-migrate-cassandra upgrade <apdb-config> schema_7.0.0
 
 Upgrade from 7.0.0 to 7.0.1
 ===========================
@@ -76,7 +76,7 @@ No additional parameters or packages are needed for this script.
 
 An example of migration::
 
-    $ apdb-migrate-cassandra upgrade <host> <keyspace> schema_7.0.1
+    $ apdb-migrate-cassandra upgrade <apdb-config> schema_7.0.1
 
 Upgrade from 7.0.1 to 8.0.0
 ===========================
@@ -96,7 +96,7 @@ Dependencies:
 
 An example of migration::
 
-    $ apdb-migrate-cassandra upgrade <host> <keyspace> schema_8.0.0
+    $ apdb-migrate-cassandra upgrade <apdb-config> schema_8.0.0
 
 Upgrade from 8.0.0 to 9.0.0
 ===========================
@@ -125,7 +125,7 @@ Dependencies:
 
 An example of migration::
 
-    $ apdb-migrate-cassandra upgrade <host> <keyspace> schema_9.1.0
+    $ apdb-migrate-cassandra upgrade <apdb-config> schema_9.1.0
 
 Upgrade from 9.1.0 to 9.1.1
 ===========================
@@ -137,7 +137,7 @@ Cassandra does not have ``NOT NULL`` constraints, so the schema does not change,
 
 An example of migration::
 
-    $ apdb-migrate-cassandra upgrade <host> <keyspace> schema_9.1.1
+    $ apdb-migrate-cassandra upgrade <apdb-config> schema_9.1.1
 
 Upgrade from 9.1.1 to 10.0.0
 ============================
@@ -148,7 +148,7 @@ Version 10.0.0 adds four new columns to ``DiaSource`` table -- ``exposureTime``,
 
 An example of migration::
 
-    $ apdb-migrate-cassandra upgrade <host> <keyspace> schema_10.0.0
+    $ apdb-migrate-cassandra upgrade <apdb-config> schema_10.0.0
 
 Upgrade from 10.0.0 to 11.0.0
 =============================
@@ -159,4 +159,4 @@ Version 11.0.0 adds seven new columns to ``DiaSource`` table.
 
 An example of migration::
 
-    $ apdb-migrate-cassandra upgrade <host> <keyspace> schema_11.0.0
+    $ apdb-migrate-cassandra upgrade <apdb-config> schema_11.0.0

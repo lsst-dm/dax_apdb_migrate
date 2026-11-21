@@ -9,8 +9,9 @@ import logging
 
 import sqlalchemy
 from alembic import op
-from lsst.dax.apdb_migrate.sql.context import Context
 from sqlalchemy.schema import Column
+
+from lsst.dax.apdb_migrate.sql.context import Context
 
 # revision identifiers, used by Alembic.
 revision = "schema_0.1.1"

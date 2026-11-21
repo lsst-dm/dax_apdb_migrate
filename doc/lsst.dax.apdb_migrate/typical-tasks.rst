@@ -17,16 +17,11 @@ After this the CLI commands should be available for use.
 SQL Backend
 ===========
 
-Examples below assume that the ``APDB_URL`` environment variable is set to a location of a APDB::
+Examples below assume that the ``APDB_CONFIG`` environment variable is set to a location of a APDB configuration file or its label defined in APDB index file::
 
-    APDB_URL=postgresql://database-server.example.com/apdb
+    APDB_CONFIG=label:apdb-instance-from-index
 
 Below a re examples of commands that are typically used with SQL backend.
-
-Note that our usual setup uses shared PostgreSQL database where each APDB instance is located in a separate schema.
-It is important to always use correct ``--schema/-s`` option providing correct schema name.
-SQLite databases do not use schemas and ``--schema/-s`` should not be given in that case.
-Examples below include ``-s SCHEMA_NAME`` for the commands that have that option.
 
 
 Revision stamping
@@ -38,15 +33,15 @@ Before executing any other migration commands the ``alembic_version`` table need
 
 To check the existence of the ``alembic_version`` table one can run the ``show-current`` command::
 
-    $ apdb-migrate-sql show-current -s SCHEMA_NAME $APDB_URL
+    $ apdb-migrate-sql show-current $APDB_CONFIG
 
 If its output is empty then ``alembic_version`` does not exist and has to be created and current revisions stamped into it with this command::
 
-    $ apdb-migrate-sql stamp -s SCHEMA_NAME $APDB_URL
+    $ apdb-migrate-sql stamp $APDB_CONFIG
 
 Once the revisions are stamped the ``show-current`` command should produce non-empty output::
 
-    $ apdb-migrate-sql show-current -s SCHEMA_NAME $APDB_URL
+    $ apdb-migrate-sql show-current $APDB_CONFIG
     ApdbSql_0.1.0 (head)
     schema_0.1.0
 
@@ -63,7 +58,7 @@ The ``show-current`` command displays versions/revisions from both these tables.
 
 Without options it shows revisions from ``alembic_version`` table::
 
-    $ apdb-migrate-sql show-current -s SCHEMA_NAME $APDB_URL
+    $ apdb-migrate-sql show-current $APDB_CONFIG
     ApdbSql_0.1.0 (head)
     schema_0.1.0
 
@@ -73,7 +68,7 @@ If ``(head)`` is missing then newer revisions exist in the revision history, and
 
 With the ``--metadata`` (or ``-m``) option this command displays information from the ``metadata`` table::
 
-    $ apdb-migrate-sql show-current --metadata -s SCHEMA_NAME $APDB_URL
+    $ apdb-migrate-sql show-current --metadata $APDB_CONFIG
     ApdbSql: 0.1.0 -> ApdbSql_0.1.0 (head)
     schema: 0.1.0 -> schema_0.1.0
 
@@ -101,8 +96,8 @@ You can tell that revision ``schema_0.1.0`` can be upgraded to ``schema_0.1.1``,
 Migration can be performed as separate steps, providing an explicit revision number for each step, or as one command specifying final revision.
 An example of migration with two separate steps that perform the upgrade to the latest version 1.0.0 are::
 
-    $ apdb-migrate-sql upgrade -s SCHEMA_NAME $APDB_URL schema_0.1.1
-    $ apdb-migrate-sql upgrade -s SCHEMA_NAME $APDB_URL schema_1.0.0
+    $ apdb-migrate-sql upgrade $APDB_CONFIG schema_0.1.1
+    $ apdb-migrate-sql upgrade $APDB_CONFIG schema_1.0.0
 
 After that ``show-current`` should show ``schema_1.0.0 (head)`` in its output.
 
@@ -119,7 +114,7 @@ It is possible to also switch the schema to a previous revision via ``downgrade`
 The command takes a revision number which should be a revision preceding the current one.
 For example, to downgrade ``schema`` tree from current ``schema_1.0.0`` to previous ``schema_0.1.1`` run this command::
 
-    $ apdb-migrate-sql downgrade -s SCHEMA_NAME $APDB_URL schema_0.1.1
+    $ apdb-migrate-sql downgrade $APDB_CONFIG schema_0.1.1
 
 Of course, the migration script has to implement the ``downgrade()`` method for this, which may not always be true.
 
@@ -149,6 +144,6 @@ Updating schema
 
 Upgrading and downgrading APDB schema works similarly to SQL, except that ``apdb-migrate-cassandra`` is used, e.g.:
 
-    $ apdb-migrate-cassandra upgrade <host> <keyspace> schema_6.0.0
+    $ apdb-migrate-cassandra upgrade $APDB_CONFIG schema_6.0.0
 
 Some migration scripts may not implement ``downgrade()`` method, in that case ``downgrade`` command will raise ``NotImplementedError`` exception.

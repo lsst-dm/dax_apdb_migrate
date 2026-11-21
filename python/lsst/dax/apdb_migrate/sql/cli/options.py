@@ -46,8 +46,6 @@ stamp_purge = click.option(
     "--purge", help="Remove existing version table before saving new versions.", is_flag=True
 )
 
-schema = click.option("-s", "--schema", help="Database schema name.", default=None)
-
 dump_sql = click.option(
     "--sql", help="Offline mode, dump SQL instead of executing migration on a database.", is_flag=True
 )

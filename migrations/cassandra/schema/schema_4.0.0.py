@@ -9,6 +9,7 @@ import logging
 from collections import Counter
 
 import cassandra.query
+
 from lsst.dax.apdb_migrate.cassandra.context import Context
 from lsst.utils.iteration import chunk_iterable
 
