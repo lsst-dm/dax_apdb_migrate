@@ -123,8 +123,6 @@ Cassandra Backend
 =================
 
 Many aspects of Cassandra revision management are similar to SQL case.
-One obvious distinction is that Cassandra connection does not use URL, but a host name and keyspace name instead.
-Any host in a Cassandra cluster can be specified when executing migration scripts.
 
 Cassandra does not store Alembic revisions in a database, instead we generate them in a temporary SQLite database on each command.
 As a result, a separate step of stamping of the revisions is not needed for Cassandra.
@@ -134,7 +132,7 @@ Checking schema revisions
 
 The ``show-current`` command reports version numbers stored in APDB ``metadata`` table and their corresponding Alembic revisions:
 
-    $ apdb-migrate-cassandra show-current <host> <keyspace>
+    $ apdb-migrate-cassandra show-current $APDB_CONFIG
     ApdbCassandra: 0.1.1 -> ApdbCassandra_0.1.1 (head)
     ApdbCassandraReplica: 1.0.0 -> ApdbCassandraReplica_1.0.0 (head)
     schema: 5.0.0 -> schema_5.0.0
